@@ -1,1 +1,3 @@
 https://telefonica-hispam.udemy.com/course/event-driven-architecture-the-complete-guide/learn/lecture/33010268#overview
+
+https://telefonica-hispam.udemy.com/course/azure-functions-masterclass/learn/
