@@ -1,0 +1,26 @@
+Hola Perla! se te enviará el acceso al material de lectura del curso, donde vas a poder profundizar estos temas y más. incluso realizar laboratorios y tutoriales... Te adelanto el material: https://learn.microsoft.com/es-es/training/paths/get-started-with-artificial-intelligence-on-azure/
+
+Depende del perfil que desees tenes varios cursos que puedes tomar...te dejo el sitio donde puedes modelar tu plan de capacitación.... https://learn.microsoft.com/en-us/certifications/
+
+Si te refieres es al usar tecnologias de nube vs onprem....depende de la solucion y del servicio.... puedes utilizar una aplicacion para estimar los costos de azure vs onprem.... se llama TCO Calculator https://azure.microsoft.com/en-us/pricing/tco/calculator/
+
+https://learn.microsoft.com/en-us/certifications/azure-ai-fundamentals/
+
+https://github.com/MicrosoftLearning/AI-900-AIFundamentals
+
+https://microsoftlearning.github.io/AI-900-AIFundamentals/instructions/01-module-01.html
+
+https://microsoftlearning.github.io/AI-900-AIFundamentals/instructions/02-module-02.html
+
+https://microsoftlearning.github.io/AI-900-AIFundamentals/instructions/03-module-03.html
+
+https://microsoftlearning.github.io/AI-900-AIFundamentals/instructions/04-module-04.html
+
+https://learn.microsoft.com/en-us/certifications/exams/ai-900/practice/assessment?assessment-type=practice&assessmentId=26&source=docs
+
+Depende del país, al comletar el curso...tendras beneficios al respecto ;) https://learn.microsoft.com/es-es/certifications/exams/ai-900/
+
+Hola! te paso la liga https://azure.microsoft.com/en-us/free
+
+QUIZ https://learn.microsoft.com/en-us/certifications/exams/ai-900/practice/assessment?assessment-type=practice&assessmentId=26&source=docs
+
