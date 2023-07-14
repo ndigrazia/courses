@@ -1,0 +1,14 @@
+https://telefonica-hispam.udemy.com/course/azure-functions-masterclass/learn/lecture/27272392#overview
+
+Azure Functions Documentation
+In this course, we will be going in depth on Azure's Serverless compute service - Azure Functions.
+
+Azure Functions Official Documentation: https://docs.microsoft.com/en-us/azure/azure-functions/
+
+
+Triggers and Bindings Useful Resources
+List of triggers and bindings: https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings#supported-bindings
+
+Cron Expression Validator: https://cronexpressiondescriptor.azurewebsites.net/
+
+Cron Expression: https://en.wikipedia.org/wiki/Cron
