@@ -12,3 +12,15 @@ List of triggers and bindings: https://docs.microsoft.com/en-us/azure/azure-func
 Cron Expression Validator: https://cronexpressiondescriptor.azurewebsites.net/
 
 Cron Expression: https://en.wikipedia.org/wiki/Cron
+
+
+Local Development Options Useful Resources
+Local development options: https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-local
+
+Azure Functions Core Tools NPM package: https://www.npmjs.com/package/azure-functions-core-tools
+
+Azure Functions Core Tools Source Code: https://github.com/Azure/azure-functions-core-tools
+
+Visual Studio Download (Community, Professional, Enterprise, Mac): https://visualstudio.microsoft.com/downloads/
+
+Visual Studio Code: https://code.visualstudio.com/Download
