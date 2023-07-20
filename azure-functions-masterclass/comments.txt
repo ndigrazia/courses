@@ -24,3 +24,17 @@ Azure Functions Core Tools Source Code: https://github.com/Azure/azure-functions
 Visual Studio Download (Community, Professional, Enterprise, Mac): https://visualstudio.microsoft.com/downloads/
 
 Visual Studio Code: https://code.visualstudio.com/Download
+
+
+Create Azure Functions in C#: Useful Resources
+Dotnetframework download: https://dotnet.microsoft.com/download/dotnet-core/
+
+Azure Functions C# Developer Reference: https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-class-library
+
+Supported input and bindings (to get name of binding parameters): https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings
+
+
+Create Azure Functions in Python: Useful Resources
+Python version support for Azure functions runtime: https://docs.microsoft.com/en-us/azure/azure-functions/functions-versions
+
+Make Python3 default on Mac: https://opensource.com/article/19/5/python-3-default-mac
