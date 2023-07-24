@@ -1171,3 +1171,272 @@ os.userInfo() // Returns uid, username, home, and shell of current user.
 
 //16.7 Working with Files
 
+/*
+Node’s “fs” module is a comprehensive API for working with files and directories. It is
+complemented by the “path” module, which defines utility functions for working with
+file and directory names.The “fs” module contains a handful of high-level functions
+for easily reading, writing, and copying files. But most of the functions in the module
+are low-level JavaScript bindings to Unix system calls. If you have worked with low-level filesystem calls before (in C or other
+languages), then the Node API will be familiar to you. If not, you may find parts of
+the “fs” API to be terse and unintuitive.
+
+The “fs” module defines a large API, mainly because there are usually multiple variants
+of each fundamental operation. As discussed at the beginning of the chapter,
+most functions such as fs.readFile() are nonblocking, callback-based, and asynchronous.
+Typically, though, each of these functions has a synchronous blocking variant,
+such as fs.readFileSync()
+
+In Node 10 and later, many of these functions also
+have a Promise-based asynchronous variant such as fs.promises.readFile(). Most
+“fs” functions take a string as their first argument, specifying the path (filename plus
+optional directory names) to the file that is to be operated on. But a number of these
+functions also support a variant that takes an integer “file descriptor” as the first argument
+instead of a path. These variants have names that begin with the letter “f.” For
+example, fs.truncate() truncates a file specified by path, and fs.ftruncate() truncates
+a file specified by file descriptor. There is a Promise-based fs.promises.trun
+cate() that expects a path and another Promise-based version that is implemented as
+a method of a FileHandle object.Finally, there are a handful of functions in the
+“fs” module that have variants whose names are prefixed with the letter “l.” These “l”
+variants are like the base function but do not follow symbolic links in the filesystem
+and instead operate directly on the symbolic links themselves
+
+
+16.7.1 Paths, File Descriptors, and FileHandles
+
+In order to use the “fs” module to work with files, you first need to be able to name
+the file you want to work with.
+Files are most often specified by path, which means
+the name of the file itself, plus the hierarchy of directories in which the file appears. If
+a path is absolute, it means that directories all the way up to the filesystem root are
+specified. Otherwise, the path is relative and is only meaningful in relation to some
+other path, usually the current working directory. Working with paths can be a little
+tricky because different operating systems use different characters to separate directory
+names, it is easy to accidentally double those separator characters when concatenating
+paths, and because ../ parent directory path segments need special handling.
+Node’s “path” module and a couple of other important Node features help:
+*/
+
+// Some important paths
+process.cwd() // Absolute path of the current working directory.
+__filename // Absolute path of the file that holds the current code.
+__dirname // Absolute path of the directory that holds __filename.
+os.homedir() // The user's home directory.
+
+const path = require("path");
+
+path.sep // Either "/" or "\" depending on your OS
+
+// The path module has simple parsing functions
+let p = "src/pkg/test.js"; // An example path
+
+path.basename(p) // => "test.js"
+path.extname(p) // => ".js"
+
+path.dirname(p) // => "src/pkg"
+path.basename(path.dirname(p)) // => "pkg"
+path.dirname(path.dirname(p)) // => "src"
+
+// normalize() cleans up paths:
+path.normalize("a/b/c/../d/") // => "a/b/d/": handles ../ segments
+path.normalize("a/./b") // => "a/b": strips "./" segments
+path.normalize("//a//b//") // => "/a/b/": removes duplicate /
+
+// join() combines path segments, adding separators, then normalizes
+path.join("src", "pkg", "t.js") // => "src/pkg/t.js"
+
+// resolve() takes one or more path segments and returns an absolute
+// path. It starts with the last argument and works backward, stopping
+// when it has built an absolute path or resolving against process.cwd().
+path.resolve() // => process.cwd()
+path.resolve("t.js") // => path.join(process.cwd(), "t.js")
+path.resolve("/tmp", "t.js") // => "/tmp/t.js"
+path.resolve("/a", "/b", "t.js") // => "/b/t.js"
+
+
+/*
+In the previous examples, we assumed that the code is running on a Unix-based OS
+and path.sep is “/.”If you want to work with Unix-style paths even when on a Windows
+system, then use path.posix instead of path. And conversely, if you want to
+work with Windows paths even when on a Unix system, path.win32. path.posix
+and path.win32 define the same properties and functions as path itself.
+
+Some of the “fs” functions we’ll be covering in the next sections expect a file descriptor
+instead of a file name. File descriptors are integers used as OS-level references to
+“open” files. You obtain a descriptor for a given name by calling the fs.open() (or
+fs.openSync()) function. Processes are only allowed to have a limited number of
+files open at one time, so it is important that you call fs.close() on your file descriptors
+when you are done with them. 
+
+You need to open files if you want to use the lowest-level fs.read() and fs.write() functions 
+that allow you to jump around within a file, reading and writing bits of it at different times
+There are other functions
+in the “fs” module that use file descriptors, but they all have name-based versions,
+and it only really makes sense to use the descriptor-based functions if you were
+going to open the file to read or write anyway.
+
+Finally, in the Promise-based API defined by fs.promises, the equivalent of
+fs.open() is fs.promises.open(), which returns a Promise that resolves to a File‐
+Handle object. This FileHandle object serves the same purpose as a file descriptor.
+Again, however, unless you need to use the lowest-level read() and write() methods
+of a FileHandle, there is really no reason to create one. And if you do create a File‐
+Handle, you should remember to call its close() method once you are done with it.
+*/
+
+// Node.js program to demonstrate the
+// filehandle.write() method
+const fs = require('fs');
+const fsPromises = fs.promises;
+ 
+console.log("file before write operation :- "
+    + fs.readFileSync('example.txt', 'utf8'));
+ 
+// Initiating asynchronise function
+async function funct() {
+ 
+    // Initializing following variables
+    let filehandle = null;
+    let prom = null;
+    let buffer = Buffer.from('Geeks');
+ 
+    try {
+ 
+        // Creating and initiating filehandle
+        filehandle = await
+            fsPromises.open('example.txt', 'r+');
+ 
+        // Writing the file by using
+        // write() method
+        prom = filehandle.write(
+            buffer, 0, buffer.length, 0);
+ 
+    } finally {
+ 
+        if (filehandle) {
+ 
+            // Display the result
+            prom.then(function (result) {
+                console.log(
+                    "file after write operation :- "
+                    + (result.buffer).toString());
+            })
+ 
+            // Close the file if it is opened.
+            await filehandle.close();
+        }
+    }
+}
+ 
+funct().catch(console.error);
+
+
+//16.7.2 Reading Files
+
+/*
+Node allows you to read file content all at once, via a stream, or with the low-level
+API.
+If your files are small, or if memory usage and performance are not the highest priority,
+then it is often easiest to read the entire content of a file with a single call. You can
+do this synchronously, with a callback, or with a Promise.By default, you’ll get the
+bytes of the file as a buffer, but if you specify an encoding, you’ll get a decoded string
+instead.*/
+
+const fs = require("fs");
+
+let buffer = fs.readFileSync("test.data"); // Synchronous, returns buffer
+let text = fs.readFileSync("data.csv", "utf8"); // Synchronous, returns string
+
+// Read the bytes of the file asynchronously
+fs.readFile("test.data", (err, buffer) => {
+    if (err) {
+    // Handle the error here
+    } else {
+    // The bytes of the file are in buffer
+    }
+});
+
+// Promise-based asynchronous read
+fs.promises
+    .readFile("data.csv", "utf8")
+    .then(processFileText)
+    .catch(handleReadError);
+
+// Or use the Promise API with await inside an async function
+async function processText(filename, encoding="utf8") {
+    let text = await fs.promises.readFile(filename, encoding);
+    // ... process the text here...
+}
+
+/*
+If you are able to process the contents of a file sequentially and do not need to have
+the entire content of the file in memory at the same time, then reading a file via a
+stream may be the most efficient approach. We’ve covered streams extensively: here is
+how you might use a stream and the pipe() method to write the contents of a file to
+standard output:*/
+
+function printFile(filename, encoding="utf8") {
+    fs.createReadStream(filename, encoding).pipe(process.stdout);
+}
+
+/*
+Finally, if you need low-level control over exactly what bytes you read from a file and
+when you read them, you can open a file to get a file descriptor and then use
+fs.read(), fs.readSync(), or fs.promises.read() to read a specified number of
+bytes from a specified source location of the file into a specified buffer at the specified
+destination position:*/
+
+const fs = require("fs");
+
+// Reading a specific portion of a data file
+fs.open("data", (err, fd) => {
+        if (err) {
+            // Report error somehow
+            return;
+        }
+        try {
+            // Read bytes 20 through 420 into a newly allocated buffer.
+            fs.read(fd, Buffer.alloc(400), 0, 400, 20, (err, n, b) => {
+                // err is the error, if any.
+                // n is the number of bytes actually read
+                // b is the buffer that they bytes were read into.
+                }
+            );
+        }
+        finally { // Use a finally clause so we always
+            fs.close(fd); // close the open file descriptor
+        }
+    });
+
+/*
+The callback-based read() API is awkward to use if you need to read more than one
+chunk of data from a file. If you can use the synchronous API (or the Promise-based
+API with await), it becomes easy to read multiple chunks from a file:*/
+
+function readData(filename) {
+    let fd = fs.openSync(filename);
+    try {
+        // Read the file header
+        let header = Buffer.alloc(12); // A 12 byte buffer
+        fs.readSync(fd, header, 0, 12, 0);
+        // Verify the file's magic number
+        let magic = header.readInt32LE(0);
+        if (magic !== 0xDADAFEED) {
+            throw new Error("File is of wrong type");
+        }
+
+        // Now get the offset and length of the data from the header
+        let offset = header.readInt32LE(4);
+        let length = header.readInt32LE(8);
+    
+        // And read those bytes from the file
+        let data = Buffer.alloc(length);
+
+        fs.readSync(fd, data, 0, length, offset);
+        return data;
+    } finally {
+        // Always close the file, even if an exception is thrown above
+        fs.closeSync(fd);
+    }
+}
+
+
+//16.7.3 Writing Files
