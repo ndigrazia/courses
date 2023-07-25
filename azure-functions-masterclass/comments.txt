@@ -38,3 +38,55 @@ Create Azure Functions in Python: Useful Resources
 Python version support for Azure functions runtime: https://docs.microsoft.com/en-us/azure/azure-functions/functions-versions
 
 Make Python3 default on Mac: https://opensource.com/article/19/5/python-3-default-mac
+
+
+Quick Note
+This module has 7 demos to solve some real world use cases and help you understand & practice azure functions concepts and coding. We will not implement all the azure functions in just one language, but will use different languages in multiple demos. But you could just rewrite below demos in any language of your choice. I'll leave it as an exercise. The business logic and the overall architecture should remain the same, only the programming language in which the azure function is coded will change.
+
+Source Code:
+
+Before each demo, there is an article which has link to the source code of that particular demo. I recommend either cloning the source code or downloading the zip on your local system. More information about cloning from Github is available here
+
+All the source code for this course is available under 'Azure Functions' project on CloudShikshak Github account.
+
+Feel free to suggest any other topic/use case that you would like to see.
+
+
+Demo 1: Useful Resources
+This article contains link to source code and other useful resources for "Image Thumbnail" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-image-thumbnail
+
+You can find few sample images for testing in 'Sample Images' folder of source code - https://github.com/Cloudshikshak/azure-functions-image-thumbnail/tree/master/sample_images
+
+Some other image sources for testing: https://www.pexels.com/, https://unsplash.com/, https://pixabay.com/
+
+Image Sharp Nuget Package for resizing image: https://www.nuget.org/packages/SixLabors.ImageSharp/
+
+In this demo, I am assuming you have basic knowledge (like what it is, not programming) about Azure Blob Storage service,
+
+If not, read the overview page of Azure Blob Storage Documentation: https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview
+
+Azure Storage Explorer App for connecting and managing Azure Storage account from a desktop app: https://azure.microsoft.com/en-us/features/storage-explorer/
+
+Before running this demo, make sure you have setup c# environment and run hello world function from the previous module.
+
+
+
+This article contains link to source code and other useful resources for "Analyze Images with Computer Vision API" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-analyze-images
+
+You can find few sample images for testing in 'Sample Images' folder of source code - https://github.com/Cloudshikshak/azure-functions-analyze-images/tree/master/sample_images
+
+Some other image sources for testing: https://picsum.photos/ , https://www.pexels.com/, https://unsplash.com/, https://pixabay.com/
+
+Azure Cognitive Service Computer Vision API:
+
+Home: https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/home
+
+Pricing: https://azure.microsoft.com/en-us/pricing/details/cognitive-services/computer-vision/
+
+Cosmos DB: https://docs.microsoft.com/en-us/azure/cosmos-db/introduction
+
+Axios Library: https://www.npmjs.com/package/axios

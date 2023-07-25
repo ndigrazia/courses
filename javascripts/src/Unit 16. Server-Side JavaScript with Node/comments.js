@@ -1440,3 +1440,485 @@ function readData(filename) {
 
 
 //16.7.3 Writing Files
+
+/*
+Writing files in Node is a lot like reading them, with a few extra details that you need
+to know about. One of these details is that the way you create a new file is simply by
+writing to a filename that does not already exist.
+
+As with reading, there are three basic ways to write files in Node. If you have the
+entire content of the file in a string or a buffer, you can write the entire thing in one
+call with fs.writeFile() (callback-based), fs.writeFileSync() (synchronous), or
+fs.promises.writeFile() (Promise-based):*/
+
+fs.writeFileSync(path.resolve(__dirname, "settings.json"), JSON.stringify(settings));
+
+/*
+If the data you are writing to the file is a string, and you want to use an encoding
+other than “utf8,” pass the encoding as an optional third argument.
+
+The related functions fs.appendFile(), fs.appendFileSync(), and fs.prom
+ises.appendFile() are similar, but when the specified file already exists, they
+append their data to the end rather than overwriting the existing file content.
+
+If the data you want to write to a file is not all in one chunk, or if it is not all in memory
+at the same time, then using a Writable stream is a good approach, assuming that
+you plan to write the data from beginning to end without skipping around in the file:
+*/
+
+const fs = require("fs");
+
+let output = fs.createWriteStream("numbers.txt");
+
+for(let i = 0; i < 100; i++) {
+    output.write(`${i}\n`);
+}
+
+output.end();
+
+/*
+Finally, if you want to write data to a file in multiple chunks, and you want to be able
+to control the exact position within the file at which each chunk is written, then you
+can open the file with fs.open(), fs.openSync(), or fs.promises.open() and then
+use the resulting file descriptor with the fs.write() or fs.writeSync() functions.
+
+These functions come in different forms for strings and buffers. The string variant
+takes a file descriptor, a string, and the file position at which to write that string (with
+an encoding as an optional fourth argument). The buffer variant takes a file descriptor,
+a buffer, an offset, and a length that specify a chunk of data within the buffer, and
+a file position at which to write the bytes of that chunk.And if you have an array of
+Buffer objects that you want to write, you can do this with a single fs.writev() or
+fs.writevSync(). Similar low-level functions exist for writing buffers and strings
+using fs.promises.open() and the FileHandle object it produces.
+
+You can chop off the end of a file with fs.truncate(), fs.truncateSync(), or
+fs.promises.truncate(). These functions take a path as their first argument and a
+length as their second, and modify the file so that it has the specified length. If you
+omit the length, zero is used and the file becomes empty. Despite the name of these
+functions, they can also be used to extend a file: if you specify a length that is longer
+than the current file size, the file is extended with zero bytes to the new size. If you
+have already opened the file you wish to modify, you can use ftruncate() or
+ftruncateSync() with the file descriptor or FileHandle
+
+The various file-writing functions described here return or invoke their callback or
+resolve their Promise when the data has been “written” in the sense that Node has
+handed it off to the operating system. But this does not necessarily mean that the data
+has actually been written to persistent storage yet.
+
+If you want to force your data out to disk so you know for sure that it has
+been safely saved, use fs.fsync() or fs.fsyncSync(). These functions only work
+with file descriptors: there is no path-based version.
+*/
+
+//16.7.4 File Operations
+
+/*
+The preceding discussion of Node’s stream classes included two examples of copy
+File() functions. These are not practical utilities that you would actually use because
+the “fs” module defines its own fs.copyFile() method (and also fs.copyFile
+Sync() and fs.promises.copyFile(), of course).
+
+These functions take the name of the original file and the name of the copy as their
+first two arguments. These can be specified as strings or as URL or Buffer objects. An
+optional third argument is an integer whose bits specify flags that control details of
+the copy operation. And for the callback-based fs.copyFile(), the final argument is
+a callback function that will be called with no arguments when the copy is complete,
+or that will be called with an error argument if something fails. Following are some
+examples:*/
+
+// Basic synchronous file copy.
+fs.copyFileSync("ch15.txt", "ch15.bak");
+
+// The COPYFILE_EXCL argument copies only if the new file does not already
+// exist. It prevents copies from overwriting existing files.
+fs.copyFile("ch15.txt", "ch16.txt", fs.constants.COPYFILE_EXCL, err => {
+    // This callback will be called when done. On error, err will be non-null.
+});
+
+// This code demonstrates the Promise-based version of the copyFile function.
+// Two flags are combined with the bitwise OR opeartor |. The flags mean that
+// existing files won't be overwritten, and that if the filesystem supports
+// it, the copy will be a copy-on-write clone of the original file, meaning
+// that no additional storage space will be required until either the original
+// or the copy is modified.
+fs.promises.copyFile("Important data", `Important data ${new Date().toISOString()}`,
+    fs.constants.COPYFILE_EXCL | fs.constants.COPYFILE_FICLONE).then(() => {
+        console.log("Backup complete");
+    })
+    .catch(err => {
+        console.error("Backup failed", err);
+    });
+
+/*
+The fs.rename() function (along with the usual synchronous and Promise-based
+variants) moves and/or renames a file. Call it with the current path to the file and the
+desired new path to the file. There is no flags argument, but the callback-based version
+takes a callback as the third argument:*/
+
+fs.renameSync("ch15.bak", "backups/ch15.bak");
+
+/*
+The functions fs.link() and fs.symlink() and their variants have the same signatures
+as fs.rename() and behave something like fs.copyFile() except that they create
+hard links and symbolic links, respectively, rather than creating a copy.
+
+Finally, fs.unlink(), fs.unlinkSync(), and fs.promises.unlink() are Node’s
+functions for deleting a file. Call this function with the string, buffer, or URL path
+to the file to be deleted, and pass a callback if you are using the callback-based version:
+*/
+
+fs.unlinkSync("backups/ch15.bak");
+
+
+//16.7.5 File Metadata
+
+/*
+The fs.stat(), fs.statSync(), and fs.promises.stat() functions allow you to
+obtain metadata for a specified file or directory. For example:*/
+
+const fs = require("fs");
+
+let stats = fs.statSync("book/ch15.md");
+
+stats.isFile() // => true: this is an ordinary file
+stats.isDirectory() // => false: it is not a directory
+stats.size // file size in bytes
+stats.atime // access time: Date when it was last read
+stats.mtime // modification time: Date when it was last written
+stats.uid // the user id of the file's owner
+stats.gid // the group id of the file's owner
+stats.mode.toString(8) // the file's permissions, as an octal string
+
+/*
+The returned Stats object contains other, more obscure properties and methods, but
+this code demonstrates those that you are most likely to use.
+
+If you have opened a file to produce a file descriptor or a FileHandle object, then you
+can use fs.fstat() or its variants to get metadata information for the opened file
+without having to specify the filename again
+
+There are also functions for changing metadata.
+
+fs.chmod(), fs.lchmod(), and fs.fchmod() (along with synchronous and Promisebased
+versions) set the “mode” or permissions of a file or directory. Mode values are
+integers in which each bit has a specific meaning and are easiest to think about in
+octal notation. For example, to make a file read-only to its owner and inaccessible to
+everyone else, use 0o400:
+*/
+
+fs.chmodSync("ch15.md", 0o400); // Don't delete it accidentally!
+
+/*
+fs.chown(), fs.lchown(), and fs.fchown() (along with synchronous and Promisebased
+versions) set the owner and group (as IDs) for a file or directory. (These matter
+because they interact with the file permissions set by fs.chmod().)
+
+Finally, you can set the access time and modification time of a file or directory with
+fs.utimes() and fs.futimes() and their variants.**/
+
+//16.7.6 Working with Directories
+
+/*
+To create a new directory in Node, use fs.mkdir(), fs.mkdirSync(), or fs.prom
+ises.mkdir(). The first argument is the path of the directory to be created. The
+optional second argument can be an integer that specifies the mode (permissions
+bits) for the new directory. Or you can pass an object with optional mode and recursive properties.
+If recursive is true, then this function will create any directories in the path that do not already exist:
+*/
+
+// Ensure that dist/ and dist/lib/ both exist.
+fs.mkdirSync("dist/lib", { recursive: true });
+
+/*
+fs.mkdtemp() and its variants take a path prefix you provide, append some random
+characters to it (this is important for security), create a directory with that name, and
+return (or pass to a callback) the directory path to you.
+
+To delete a directory, use fs.rmdir() or one of its variants. Note that directories must
+be empty before they can be deleted:*/
+
+// Create a random temporary directory and get its path, then
+// delete it when we are done
+let tempDirPath;
+try {
+    tempDirPath = fs.mkdtempSync(path.join(os.tmpdir(), "d"));
+// Do something with the directory here
+} finally {
+    // Delete the temporary directory when we're done with it
+    fs.rmdirSync(tempDirPath);
+}
+
+/*
+The “fs” module provides two distinct APIs for listing the contents of a directory.
+First, fs.readdir(), fs.readdirSync(), and fs.promises.readdir() read the entire
+directory all at once and give you an array of strings or an array of Dirent objects that
+specify the names and types (file or directory) of each item. Filenames returned by
+these functions are just the local name of the file, not the entire path*/
+
+let tempFiles = fs.readdirSync("/tmp"); // returns an array of strings
+
+// Use the Promise-based API to get a Dirent array, and then
+// print the paths of subdirectories
+fs.promises.readdir("/tmp", {withFileTypes: true})
+    .then(entries => {
+        entries.filter(entry => entry.isDirectory())
+        .map(entry => entry.name)
+        .forEach(name => console.log(path.join("/tmp/", name)));
+    })
+    .catch(console.error);
+
+/*
+If you anticipate needing to list directories that might have thousands of entries, you
+might prefer the streaming approach of fs.opendir() and its variants. These functions
+return a Dir object representing the specified directory. You can use the read()
+or readSync() methods of the Dir object to read one Dirent at a time. If you pass a
+callback function to read(), it will call the callback. And if you omit the callback
+argument, it will return a Promise. When there are no more directory entries, you’ll
+get null instead of a Dirent object.
+
+The easiest way to use Dir objects is as async iterators with a for/await loop. Here,
+for example, is a function that uses the streaming API to list directory entries, calls
+stat() on each entry, and prints file and directory names and sizes:*/
+
+const fs = require("fs");
+const path = require("path");
+
+async function listDirectory(dirpath) {
+    let dir = await fs.promises.opendir(dirpath);
+    
+    for await (let entry of dir) {
+        let name = entry.name;
+        if (entry.isDirectory()) {
+            name += "/"; // Add a trailing slash to subdirectories
+        }
+        let stats = await fs.promises.stat(path.join(dirpath, name));
+        let size = stats.size;
+        console.log(String(size).padStart(10), name);
+    }      
+}
+
+//16.8 HTTP Clients and Servers
+
+/*
+Node’s “http,” “https,” and “http2” modules are full-featured but relatively low-level
+implementations of the HTTP protocols. They define comprehensive APIs for implementing
+HTTP clients and servers. The APIs are relatively low-level.
+
+The simplest way to make a basic HTTP GET request is with http.get() or
+https.get(). The first argument to these functions is the URL to fetch
+(If it is an http:// URL, you must use the “http” module, and if it is an https:// URL you
+must use the “https” module.). The second argument is a callback that will be invoked
+with an IncomingMessage object when the server’s response has started to arrive. When the callback
+is called, the HTTP status and headers are available, but the body may not be ready yet.
+The IncomingMessage object is a Readable stream, and you can
+use the techniques demonstrated earlier in this chapter to read the response body
+from it.
+
+The getJSON() function at the end of §13.2.6 used the http.get() function as part of
+a demonstration of the Promise() constructor. Now that you know about Node
+streams and the Node programming model more generally, it is worth revisiting that
+example to see how http.get() is used
+
+http.get() and https.get() are slightly simplified variants of the more general
+http.request() and https.request() functions. The following postJSON() function
+demonstrates how to use https.request() to make an HTTPS POST request
+that includes a JSON request body. Like the getJSON() function of Chapter 13, it
+expects a JSON response and returns a Promise that fulfills to the parsed version of
+that response:*/
+
+const https = require("https");
+
+/*
+* Convert the body object to a JSON string then HTTPS POST it to the
+* specified API endpoint on the specified host. When the response arrives,
+* parse the response body as JSON and resolve the returned Promise with
+* that parsed value.
+*/
+function postJSON(host, endpoint, body, port, username, password) {
+
+    // Return a Promise object immediately, then call resolve or reject
+    // when the HTTPS request succeeds or fails.
+    return new Promise((resolve, reject) => {
+        // Convert the body object to a string
+        let bodyText = JSON.stringify(body);
+
+        // Configure the HTTPS request
+        let requestOptions = {
+            method: "POST", // Or "GET", "PUT", "DELETE", etc.
+            host: host, // The host to connect to
+            path: endpoint, // The URL path
+            headers: { // HTTP headers for the request
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(bodyText)
+            }
+        };
+
+        if (port) { // If a port is specified,
+            requestOptions.port = port; // use it for the request.
+        }
+        
+        // If credentials are specified, add an Authorization header.
+        if (username && password) {
+            requestOptions.auth = `${username}:${password}`;
+        }
+
+        // Now create the request based on the configuration object
+        let request = https.request(requestOptions);
+
+        // Write the body of the POST request and end the request.
+        request.write(bodyText);
+        request.end();
+
+        // Fail on request errors (such as no network connection)
+        request.on("error", e => reject(e));
+
+        // Handle the response when it starts to arrive.
+        request.on("response", response => {
+            if (response.statusCode !== 200) {
+                reject(new Error(`HTTP status ${response.statusCode}`));
+                // We don't care about the response body in this case, but
+                // we don't want it to stick around in a buffer somewhere, so
+                // we put the stream into flowing mode without registering
+                // a "data" handler so that the body is discarded.
+                response.resume();
+                return;
+            }
+
+            // We want text, not bytes. We're assuming the text will be
+            // JSON-formatted but aren't bothering to check the
+            // Content-Type header.
+            response.setEncoding("utf8");
+
+            // Node doesn't have a streaming JSON parser, so we read the
+            // entire response body into a string.
+            let body = "";
+            response.on("data", chunk => { body += chunk; });
+
+            // And now handle the response when it is complete.
+            response.on("end", () => { // When the response is done,
+                    try { // try to parse it as JSON
+                        resolve(JSON.parse(body)); // and resolve the result.
+                    } catch(e) { // Or, if anything goes wrong,
+                        reject(e); // reject with the error
+                    }
+            });
+        });
+    });
+}
+
+/*
+In addition to making HTTP and HTTPS requests, the “http” and “https” modules
+also allow you to write servers that respond to those requests. The basic approach is
+as follows:
+
+• Create a new Server object.
+• Call its listen() method to begin listening for requests on a specified port.
+• Register an event handler for “request” events, use that handler to read the client’s
+request (particularly the request.url property), and write your response
+
+The code that follows creates a simple HTTP server that serves static files from the
+local filesystem and also implements a debugging endpoint that responds to a client’s
+request by echoing that request.*/
+
+// This is a simple static HTTP server that serves files from a specified
+// directory. It also implements a special /test/mirror endpoint that
+// echoes the incoming request, which can be useful when debugging clients.
+const http = require("http"); // Use "https" if you have a certificate
+const url = require("url"); // For parsing URLs
+const path = require("path"); // For manipulating filesystem paths
+const fs = require("fs"); // For reading files
+
+// Serve files from the specified root directory via an HTTP server that
+// listens on the specified port.
+function serve(rootDirectory, port) {
+    let server = new http.Server(); // Create a new HTTP server
+    server.listen(port); // Listen on the specified port
+    console.log("Listening on port", port);
+
+    // When requests come in, handle them with this function
+    server.on("request", (request, response) => {
+        // Get the path portion of the request URL, ignoring
+        // any query parameters that are appended to it.
+        let endpoint = url.parse(request.url).pathname;
+
+        // If the request was for "/test/mirror", send back the request
+        // verbatim. Useful when you need to see the request headers and body.
+        if (endpoint === "/test/mirror") {
+            // Set response header
+            response.setHeader("Content-Type", "text/plain; charset=UTF-8");
+            // Specify response status code
+            response.writeHead(200); // 200 OK
+
+            // Begin the response body with the request
+            response.write(`${request.method} ${request.url} HTTP/${request.httpVersion}\r\n`);
+            
+            // Output the request headers
+            let headers = request.rawHeaders;
+            for(let i = 0; i < headers.length; i += 2) {
+                response.write(`${headers[i]}: ${headers[i+1]}\r\n`);
+            }
+
+            // End headers with an extra blank line
+            response.write("\r\n");
+
+            // Now we need to copy any request body to the response body
+            // Since they are both streams, we can use a pipe
+            request.pipe(response);
+        }
+        // Otherwise, serve a file from the local directory.
+        else {
+            // Map the endpoint to a file in the local filesystem
+            let filename = endpoint.substring(1); // strip leading /
+            // Don't allow "../" in the path because it would be a security
+            // hole to serve anything outside the root directory.
+            filename = filename.replace(/\.\.\//g, "");
+            // Now convert from relative to absolute filename
+            filename = path.resolve(rootDirectory, filename);
+
+            // Now guess the type file's content type based on extension
+            let type;
+            switch(path.extname(filename)) {
+                case ".html":
+                case ".htm": type = "text/html"; break;
+                case ".js": type = "text/javascript"; break;
+                case ".css": type = "text/css"; break;
+                case ".png": type = "image/png"; break;
+                case ".txt": type = "text/plain"; break;
+                default: type = "application/octet-stream"; break;  
+            }
+
+            let stream = fs.createReadStream(filename);
+            stream.once("readable", () => {
+                // If the stream becomes readable, then set the
+                // Content-Type header and a 200 OK status. Then pipe the
+                // file reader stream to the response. The pipe will
+                // automatically call response.end() when the stream ends.
+                response.setHeader("Content-Type", type);
+                response.writeHead(200);
+                stream.pipe(response);
+            });
+
+            stream.on("error", (err) => {
+                // Instead, if we get an error trying to open the stream
+                // then the file probably does not exist or is not readable.
+                // Send a 404 Not Found plain-text response with the
+                // error message.
+                response.setHeader("Content-Type", "text/plain; charset=UTF-8");
+                response.writeHead(404);
+                response.end(err.message);
+            });
+        }
+    });
+}
+
+// When we're invoked from the command line, call the serve() function
+serve(process.argv[2] || "/tmp", parseInt(process.argv[3]) || 8000);
+
+/*
+Node’s built-in modules are all you need to write simple HTTP and HTTPS servers.
+Note, however, that production servers are not typically built directly on top of these
+modules. Instead, most nontrivial servers are implemented using external libraries—
+such as the Express framework—that provide “middleware” and other higher-level
+utilities that backend web developers have come to expect*/
+
+//16.9 Non-HTTP Network Servers and Clients
