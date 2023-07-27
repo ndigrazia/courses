@@ -2287,10 +2287,204 @@ to be doing orders of magnitude more computation before it would make sense to
 use fork() and interprocess communication in this way. */
 
 /*If you are writing a program that needs to be very responsive to incoming events and 
-also needs to perform timeconsuming computations, then you might consider using a separate 
+also needs to perform time-consuming computations, then you might consider using a separate 
 child process to perform the computations so that they don’t block the event loop and reduce the
 responsiveness of the parent process.(Though a thread)*/
 
 
 //16.11 Worker Threads
 
+
+/*
+Node’s concurrency model is single-threaded and event-based. But in version 10 and later, Node does allow true multithreaded
+programming, with an API that closely mirrors the Web Workers API
+defined by web browsers. Multithreaded programming has a well-deserved
+reputation for being difficult. This is almost entirely because of the need to carefully
+synchronize access by threads to shared memory. But JavaScript threads (in both
+Node and browsers) do not share memory by default, so the dangers and difficulties
+of using threads do not apply to these “workers” in JavaScript.
+
+Instead of using shared memory, JavaScript’s worker threads communicate by message
+passing. The main thread can send a message to a worker thread by calling the
+postMessage() method of the Worker object that represents that thread. The worker
+thread can receive messages from its parent by listening for “message” events. And
+workers can send messages to the main thread with their own version of postMes
+sage(), which the parent can receive with its own “message” event handler. The
+example code will make it clear how this works.
+
+There are three reasons why you might want to use worker threads in a Node
+application:
+
+    • If your application actually needs to do more computation than one CPU core
+can handle, then threads allow you to distribute work across the multiple cores,
+which have become commonplace on computers today. If you’re doing scientific
+computing or machine learning or graphics processing in Node, then you may
+want to use threads simply to throw more computing power at your problem.
+• Even if your application is not using the full power of one CPU, you may still
+want to use threads to maintain the responsiveness of the main thread. Consider
+a server that handles large but relatively infrequent requests. Suppose it gets only
+one request a second, but needs to spend about half a second of (blocking CPUbound)
+computation to process each request. On average, it will be idle 50% of
+the time. But when two requests arrive within a few milliseconds of each other,
+the server will not even be able to begin a response to the second request until the
+computation of the first response is complete. Instead, if the server uses a worker
+thread to perform the computation, the server can begin the response to both
+requests immediately and provide a better experience for the server’s clients.
+Assuming the server has more than one CPU core, it can also compute the body
+of both responses in parallel, but even if there is only a single core, using workers
+still improves the responsiveness.
+• In general, workers allow us to turn blocking synchronous operations into nonblocking
+asynchronous operations. If you are writing a program that depends on
+legacy code that is unavoidably synchronous, you may be able to use workers to
+avoid blocking when you need to call that legacy code.
+
+IMPORTANT: Worker threads are not nearly as heavyweight as child processes, but they are not
+lightweight. It does not generally make sense to create a worker unless you have significant
+work for it to do. And, generally speaking, if your program is not CPUbound
+and is not having responsiveness problems, then you probably do not need
+worker threads.
+
+16.11.1 Creating Workers and Passing Messages
+
+The Node module that defines workers is known as “worker_threads.” In this section
+we’ll refer to it with the identifier threads:
+*/
+
+const threads = require("worker_threads");
+
+/*
+This module defines a Worker class to represent a worker thread, and you can create
+a new thread with the threads.Worker() constructor.The following code demonstrates
+using this constructor to create a worker, and shows how to pass messages
+from main thread to worker and from worker to main thread. It also demonstrates a
+trick that allows you to put the main thread code and the worker thread code in the
+same file.*/
+
+const threads = require("worker_threads");
+
+// The worker_threads module exports the boolean isMainThread property.
+// This property is true when Node is running the main thread and it is
+// false when Node is running a worker. We can use this fact to implement
+// the main and worker threads in the same file.
+if (threads.isMainThread) {
+    // If we're running in the main thread, then all we do is export
+    // a function. Instead of performing a computationally intensive
+    // task on the main thread, this function passes the task to a worker
+    // and returns a Promise that will resolve when the worker is done.
+    module.exports = function reticulateSplines(splines) {
+        return new Promise((resolve,reject) => {
+            // Create a worker that loads and runs this same file of code.
+            // Note the use of the special __filename variable.
+            let reticulator = new threads.Worker(__filename);
+            // Pass a copy of the splines array to the worker
+            reticulator.postMessage(splines);
+            // And then resolve or reject the Promise when we get
+            // a message or error from the worker.
+            reticulator.on("message", resolve);
+            reticulator.on("error", reject);
+            });
+        };
+} else {
+    // If we get here, it means we're in the worker, so we register a
+    // handler to get messages from the main thread. This worker is designed
+    // to only receive a single message, so we register the event handler
+    // with once() instead of on(). This allows the worker to exit naturally
+    // when its work is complete.
+    threads.parentPort.once("message", splines => {
+        // When we get the splines from the parent thread, loop
+        // through them and reticulate all of them.
+        for(let spline of splines) {
+            // For the sake of example, assume that spline objects usually
+            // have a reticulate() method that does a lot of computation.
+            spline.reticulate ? spline.reticulate() : spline.reticulated = true;
+        }
+        // When all the splines have (finally!) been reticulated
+        // pass a copy back to the main thread.
+        threads.parentPort.postMessage(splines);
+    });
+}
+
+/*
+The first argument to the Worker() constructor is the path to a file of JavaScript code
+that is to run in the thread. In the preceding code, we used the predefined __file
+name identifier to create a worker that loads and runs the same file as the main thread.
+Note that if you specify a relative path, it is relative to process.cwd(). If you want a path relative to the current module, use something like
+path.resolve(__dirname, 'workers/reticulator.js'). The Worker() constructor can also accept an object as its second argument, and the
+properties of this object provide optional configuration for the worker. We’ll cover a
+number of these options later, but for now note that if you pass {eval: true} as the
+second argument, then the first argument to Worker() is interpreted as a string of
+JavaScript code to be evaluated instead of a filename:*/
+
+path.resolve(__dirname, 'workers/reticulator.js').
+
+/*
+The Worker() constructor can also accept an object as its second argument, and the
+properties of this object provide optional configuration for the worker. We’ll cover a
+number of these options later, but for now note that if you pass {eval: true} as the
+second argument, then the first argument to Worker() is interpreted as a string of
+JavaScript code to be evaluated instead of a filename:*/
+
+new threads.Worker(`
+    const threads = require("worker_threads");
+    threads.parentPort.postMessage(threads.isMainThread);
+`, {eval: true}).on("message", console.log); // This will print "false"
+
+/*
+Node makes a copy of the object passed to postMessage() rather than sharing it
+directly with the worker thread. This prevents the worker thread and the main thread
+from sharing memory. You might expect that this copying would be done with
+JSON.stringify() and JSON.parse(). But in fact, Node borrows a more
+robust technique known as the structured clone algorithm from web browsers.
+
+The structured clone algorithm enables serialization of most JavaScript types, including
+Map, Set, Date, and RegExp objects and typed arrays, but it cannot, in general,
+copy types defined by the Node host environment, such as sockets and streams. Note,
+however, that Buffer objects are partially supported: if you pass a Buffer to postMes
+sage() it will be received as a Uint8Array, and can be converted back into a Buffer
+with Buffer.from().*/
+
+//16.11.2 The Worker Execution Environment
+
+/*
+JavaScript code in a Node worker thread runs just like it would in
+Node’s main thread. There are a few differences that you should be aware of, and
+some of these differences involve properties of the optional second argument to the
+Worker() constructor:
+
+• As we’ve seen, threads.isMainThread is true in the main thread but is always
+false in any worker thread.
+• In a worker thread, you can use threads.parentPort.postMessage() to send a
+message to the parent thread and threads.parentPort.on to register event handlers
+for messages from the parent thread. In the main thread, threads.parent
+Port is always null.
+• In a worker thread, threads.workerData is set to a copy of the workerData property
+of the second argument to the Worker() constructor. In the main thread, this
+property is always null. You can use this workerData property to pass an initial
+message to the worker that will be available as soon as it starts so that the worker
+does not have to wait for a “message” event before it can start doing work.
+• By default, process.env in a worker thread is a copy of process.env in the parent
+thread. But the parent thread can specify a custom set of environment variables
+by setting the env property of the second argument to the Worker()
+constructor
+• By default, the process.stdin stream in a worker never has any readable data on
+it. You can change this default by passing stdin: true in the second argument to
+the Worker() constructor. If you do that, then the stdin property of the Worker
+object is a Writable stream. Any data that the parent writes to worker.stdin
+becomes readable on process.stdin in the worker.
+• By default, the process.stdout and process.stderr streams in the worker are
+simply piped to the corresponding streams in the parent thread. This means, for
+example, that console.log() and console.error() produce output in exactly
+the same way in a worker thread as they do in the main thread. You can override
+this default by passing stdout:true or stderr:true in the second argument to
+the Worker() constructor. If you do this, then any output the worker writes to
+those streams becomes readable by the parent thread on the worker.stdout and
+worker.stderr threads.
+• If a worker thread calls process.exit(), only the thread exits, not the entire
+process.
+• Worker threads are not allowed to change shared state of the process they are
+part of. Functions like process.chdir() and process.setuid() will throw
+exceptions when invoked from a worker.
+• Operating system signals (like SIGINT and SIGTERM) are only delivered to the
+main thread; they cannot be received or handled in worker threads.
+
+16.11.3 Communication Channels and MessagePorts
