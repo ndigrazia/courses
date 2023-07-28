@@ -252,5 +252,81 @@ Running our test gave us 100% code coverage for the module we were testing, whic
 is exactly what we wanted. It only gave us partial coverage of getJSON(), but we
 mocked that module and were not trying to test it, so that is expected
 
-
 //17.4 Package Management with npm
+
+In modern software development, it is common for any nontrivial program that you
+write to depend on third-party software libraries. If you’re writing a web server in
+Node, for example, you might be using the Express framework. And if you’re creating
+a user interface to be displayed in a web browser, you might use a frontend framework
+like React or LitElement or Angular. A package manager makes it easy to find
+and install third-party packages like these. Just as importantly, a package manager
+keeps track of what packages your code depends on and saves this information into a
+file so that when someone else wants to try your program, they can download your
+code and your list of dependencies, then use their own package manager to install all
+the third-party packages that your code needs. 
+
+npm is the package manager that is bundled with Node. It is just as useful for client-side 
+JavaScript programming as it is for server side programming with Node, however.
+
+If you are trying out someone else’s JavaScript project, then one of the first things you
+will often do after downloading their code is to type npm install. This reads the
+dependencies listed in the package.json file and downloads the third-party packages
+that the project needs and saves them in a node_modules/ directory.
+
+You can also type npm install <package-name> to install a particular package to
+your project’s node_modules/ directory
+
+$ npm install express
+
+In addition to installing the named package, npm also makes a record of the dependency
+in the package.json file for the project. Recording dependencies in this way is
+what allows others to install those dependencies simply by typing npm install.
+
+IMPORTANT: The other kind of dependency is on developer tools that are needed by developers
+who want to work on your project, but aren’t actually needed to run the code.
+
+If a
+project uses Prettier, for example, to ensure that all of its code is consistently formatted,
+then Prettier is a “dev dependency,” and you can install and record one of these
+with --save-dev:
+
+$ npm install --save-dev prettier
+
+Sometimes you might want to install developer tools globally so that they are accessible
+anywhere even for code that is not part of a formal project with a package.json file
+and a node_modules/ directory. For that you can use the -g (for global) option:
+
+$ npm install -g eslint jest
+    /usr/local/bin/eslint -> /usr/local/lib/node_modules/eslint/bin/eslint.js
+    /usr/local/bin/jest -> /usr/local/lib/node_modules/jest/bin/jest.js
+    + jest@24.9.0
+    + eslint@6.7.2
+    added 653 packages from 414 contributors in 25.596s
+
+$ which eslint
+/usr/local/bin/eslint
+
+$ which jest
+/usr/local/bin/jest
+
+In addition to the “install” command, npm supports “uninstall” and “update” commands,
+which do what their names say. npm also has an interesting “audit” command
+that you can use to find and fix security vulnerabilities in your dependencies:
+
+$ npm audit --fix
+    === npm audit security report ===
+    found 0 vulnerabilities
+    in 876354 scanned packages
+
+When you install a tool like ESLint locally for a project, the eslint script winds up in ./
+node_modules/.bin/eslint, which makes the command awkward to run. Fortunately,
+npm is bundled with a command known as “npx,” which you can use to run locally
+installed tools with commands like npx eslint or npx jest. (And if you use npx to
+invoke a tool that has not been installed yet, it will install it for you.)
+
+The company behind npm also maintains the https://npmjs.com package repository, which holds 
+hundreds of thousands of open source packages. But you don’t have to
+use the npm package manager to access this repository of packages. Alternatives
+include yarn and pnpm.
+
+//17.5 Code Bundling

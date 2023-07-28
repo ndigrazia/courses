@@ -2408,8 +2408,10 @@ if (threads.isMainThread) {
 The first argument to the Worker() constructor is the path to a file of JavaScript code
 that is to run in the thread. In the preceding code, we used the predefined __file
 name identifier to create a worker that loads and runs the same file as the main thread.
-Note that if you specify a relative path, it is relative to process.cwd(). If you want a path relative to the current module, use something like
-path.resolve(__dirname, 'workers/reticulator.js'). The Worker() constructor can also accept an object as its second argument, and the
+Note that if you specify a relative path, it is relative to process.cwd(). If you want a 
+path relative to the current module, use something like
+path.resolve(__dirname, 'workers/reticulator.js'). The Worker() constructor can also accept 
+an object as its second argument, and the
 properties of this object provide optional configuration for the worker. We’ll cover a
 number of these options later, but for now note that if you pass {eval: true} as the
 second argument, then the first argument to Worker() is interpreted as a string of
@@ -2488,3 +2490,120 @@ exceptions when invoked from a worker.
 main thread; they cannot be received or handled in worker threads.
 
 16.11.3 Communication Channels and MessagePorts
+
+
+When a new worker thread is created, a communication channel is created along with
+it that allows messages to be passed back and forth between the worker and the parent
+thread.As we’ve seen, the worker thread uses threads.parentPort to send and receive 
+messages to and from the parent thread, and the parent thread uses the
+Worker object to send and receive messages to and from the worker thread.
+
+The worker thread API also allows the creation of custom communication channels
+using the MessageChannel API defined by web browsers.
+
+Suppose a worker needs to handle two different kinds of messages sent by two different
+modules in the main thread. These two different modules could both share the
+default channel and send messages with worker.postMessage(), but it would be
+cleaner if each module has its own private channel for sending messages to the
+worker. Or consider the case where the main thread creates two independent workers.
+A custom communication channel can allow the two workers to communicate
+directly with each other instead of having to send all their messages via the parent.
+
+Create a new message channel with the MessageChannel() constructor. A Message‐
+Channel object has two properties, named port1 and port2. These properties refer to
+a pair of MessagePort objects. Calling postMessage() on one of the ports will cause a
+“message” event to be generated on the other with a structured clone of the Message
+object:*/
+
+const threads = require("worker_threads");
+
+let channel = new threads.MessageChannel();
+
+channel.port2.on("message", console.log); // Log any messages we receive
+channel.port1.postMessage("hello"); // Will cause "hello" to be printed
+
+/*
+You can also call close() on either port to break the connection between the two
+ports and to signal that no more messages will be exchanged. When close() is called
+on either port, a “close” event is delivered to both ports.
+In order to use custom
+communication channels with workers, we must transfer one of the two ports from
+the thread in which it is created to the thread in which it will be used
+
+
+16.11.4 Transferring MessagePorts and Typed Arrays
+
+The postMessage() function uses the structured clone algorithm, and as we’ve noted,
+it cannot copy objects like SSockets and Streams. It can handle MessagePort objects
+but only as a special case using a special technique. The postMessage() method (of a
+Worker object, of threads.parentPort, or of any MessagePort object) takes an
+optional second argument. This argument (called transferList) is an array of
+objects that are to be transferred between threads rather than being copied.
+
+A MessagePort object cannot be copied by the structured clone algorithm, but it can
+be transferred. If the first argument to postMessage() has included one or more
+MessagePorts (nested arbitrarily deeply within the Message object), then those MessagePort
+objects must also appear as members of the array passed as the second argument.
+Doing this tells Node that it does not need to make a copy of the MessagePort,
+and can instead just give the existing object to the other thread. The key thing to
+understand, however, about transferring values between threads is that once a value is
+transferred, it can no longer be used in the thread that called postMessage()..
+
+Here is how you might create a new MessageChannel and transfer one of its Message‐
+Ports to a worker:*/
+
+// Create a custom communication channel
+const threads = require("worker_threads");
+let channel = new threads.MessageChannel();
+
+// Use the worker's default channel to transfer one end of the new
+// channel to the worker. Assume that when the worker receives this
+// message it immediately begins to listen for messages on the new channel.
+worker.postMessage({ command: "changeChannel", data: channel.port1 }, [ channel.port1 ]);
+
+// Now send a message to the worker using our end of the custom channel
+channel.port2.postMessage("Can you hear me now?");
+
+// And listen for responses from the worker as well
+channel.port2.on("message", handleMessagesFromWorker);
+
+/*
+MessagePort objects are not the only ones that can be transferred. If you call postMessage() 
+with a typed array as the message (or with a message that contains one or
+more typed arrays nested arbitrarily deep within the message), that typed array (or
+those typed arrays) will simply be copied by the structured clone algorithm. But typed
+arrays can be large; for example, if you are using a worker thread to do image processing
+on millions of pixels. So for efficiency, postMessage() also gives us the option
+to transfer typed arrays rather than copying them. (Threads share memory by default.
+Worker threads in JavaScript generally avoid shared memory, but when we allow this
+kind of controlled transfer, it can be done very efficiently.)
+
+IMPORTANT: What makes this safe is that when a typed array is transferred to another thread, 
+it becomes unusable in the thread that transferred it. 
+
+In the image-processing scenario, the main thread could
+transfer the pixels of an image to the worker thread, and then the worker thread
+could transfer the processed pixels back to the main thread when it was done. The
+memory would not need to be copied, but it would never be accessible by two threads
+at once.
+
+To transfer a typed array instead of copying it, include the ArrayBuffer that backs the
+array in the second argument to postMessage():*/
+
+let pixels = new Uint32Array(1024*1024); // 4 megabytes of memory
+
+// Assume we read some data into this typed array, and then transfer the
+// pixels to a worker without copying. Note that we don't put the array
+// itself in the transfer list, but the array's Buffer object instead.
+worker.postMessage(pixels, [ pixels.buffer ]);
+
+/*
+As with transferred MessagePorts, a transferred typed array becomes unusable once
+transferred. No exceptions are thrown if you attempt to use a MessagePort or typed
+array that has been transferred; these objects simply stop doing anything when you
+interact with them.*/
+
+
+//16.11.5 Sharing Typed Arrays Between Threads
+
+
