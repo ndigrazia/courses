@@ -100,3 +100,32 @@ We are going to use the same source code repository as demo 2. We will add a new
 Source code: https://github.com/Cloudshikshak/azure-functions-analyze-images
 
 Sendgrid: https://sendgrid.com/
+
+
+
+This article contains link to source code and other useful resources for "Delete Old Blob Files" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-old-blob-delete
+
+Cron Expression Intro: https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions
+
+
+
+Cron Expression Useful Tools:
+
+https://crontab.guru/
+
+https://cronexpressiondescriptor.azurewebsites.net/
+
+https://crontab.cronhub.io/
+
+https://crontab-generator.org/
+
+
+
+Demo 5: Useful Resources
+This article contains link to source code and other useful resources for "Notify User of Deleted File" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-old-blob-delete
+
+Sendgrid Email API: https://sendgrid.com/

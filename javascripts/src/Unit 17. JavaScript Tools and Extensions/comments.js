@@ -330,3 +330,124 @@ use the npm package manager to access this repository of packages. Alternatives
 include yarn and pnpm.
 
 //17.5 Code Bundling
+
+/*
+If you are writing a large JavaScript program to run in web browsers, you will probably
+want to use a code-bundling tool, especially if you use external libraries that are
+delivered as modules. Web developers have been using ES6 modules (§10.3) for years,
+since well before the import and export keywords were supported on the web. In
+order to do this, programmers use a code-bundler tool that starts at the main entry
+point (or entry points) of the program and follows the tree of import directives to
+find all modules that the program depends on.It then combines all of those individual
+module files into a single bundle of JavaScript code and rewrites the import and
+export directives to make the code work in this new form. The result is a single file of
+code that can be loaded into a web browser that does not support modules. 
+
+ES6 modules are nearly universally supported by web browsers today, but web developers
+still tend to use code bundlers, at least when releasing production code. Developers
+find that user experience is best when a single medium-sized bundle of code is
+loaded when a user first visits a website than when many small modules are loaded.
+
+    Web performance is a notoriously tricky topic and there are lots of
+    variables to consider, including ongoing improvements by browser
+    vendors, so the only way to be sure of the fastest way to load your
+    code is by testing thoroughly and measuring carefully.
+    Keep in mind that there is one variable that is completely under your control:
+    code size. Less JavaScript code will always load and run faster than more JavaScript code!
+
+There are a number of good JavaScript bundler tools available. Commonly used bundlers
+include webpack, Rollup and Parcel. e basic features of bundlers are more or
+less the same, and they are differentiated based on how configurable they are or how
+easy they are to use. 
+
+Webpack has been around for a long time, has a large ecosystem
+of plug-ins, is highly configurable, and can support older nonmodule libraries. But it
+can also be complex and hard to configure- At the other end of the spectrum is Parcel
+which is intended as a zero-configuration alternative that simply does the right thing.
+
+In addition to performing basic bundling, bundler tools can also provide some additional
+features:
+
+• Some programs have more than one entry point. A web application with multiple
+pages, for example, could be written with a different entry point for each page.
+Bundlers generally allow you to create one bundle per entry point or to create a
+single bundle that supports multiple entry points.
+
+• Programs can use import() in its functional form (§10.3.6) instead of its static
+form to dynamically load modules when they are actually needed rather than
+statically loading them at program startup time. Doing this is often a good way to
+improve the startup time for your program. Bundler tools that support import()
+may be able to produce multiple output bundles: one to load at startup time, and
+one or more that are loaded dynamically when needed.
+
+• Bundlers can generally output a source map file that defines a mapping between
+the lines of code in the bundle and the corresponding lines in the original source
+files. This allows browser developer tools to automatically display JavaScript
+errors at their original unbundled locations.
+
+• Sometimes when you import a module into your program, you only use a few of
+its features. A good bundler tool can analyze the code to determine which parts
+are unused and can be omitted from the bundles This feature goes by the whimsical
+name of “tree-shaking.”
+
+• Bundlers typically have a plug-in–based architecture and support plug-ins that
+allow importing and bundling “modules” that are not actually files of JavaScript
+code. Suppose that your program includes a large JSON-compatible data structure
+Code bundlers can be configured to allow you to move that data structure
+into a separate JSON file and then import it into your program with a declaration
+like import widgets from "./big-widget-list.json
+
+• In a language like JavaScript that does not require compilation, running a bundler
+tool feels like a compilation step, and it is frustrating to have to run a bundler
+after every code edit before you can run the code in your browser. Bundlers
+typically support filesystem watchers that detect edits to any files in a project
+directory and automatically regenerate the necessary bundles.
+
+• Some bundlers also support a “hot module replacement” mode for developers
+where each time a bundle is regenerated, it is automatically loaded into the
+browser.
+
+
+//17.6 Transpilation with Babel
+
+/*
+Babel is a tool that compiles JavaScript written using modern language features into
+JavaScript that does not use those modern language features. Because it compiles
+JavaScript to JavaScript, Babel is sometimes called a “transpiler.” Babel was created so
+that web developers could use the new language features of ES6 and later while still
+targeting web browsers that only supported ES5.
+
+Language features such as the ** exponentiation operator and arrow functions can be
+transformed relatively easily into Math.pow() and function expressions. Other language
+features, such as the class keyword, require much more complex transformations,
+and, in general, the code output by Babel is not meant to be human readable
+
+Like bundler tools, however, Babel can produce source maps that map transformed
+code locations back to their original source locations.
+
+Browser vendors are doing a better job of keeping up with the evolution of the Java‐
+Script language, and there is much less need today to compile away arrow functions
+and class declarations.
+
+Like most of the other tools described in this chapter, you can install Babel with npm
+and run it with npx. Babel reads a .babelrc configuration file that tells it how you
+would like your JavaScript code transformed. Babel defines “presets” that you can
+choose from depending on which language extensions you want to use and how
+aggressively you want to transform standard language features. 
+
+If you use Babel and a code-bundling tool, you may be able to set up the code bundler
+to automatically run Babel on your JavaScript files as it builds the bundle for you. If
+so, this can be a convenient option because it simplifies the process of producing
+runnable code.
+
+Webpack, for example, supports a “babel-loader” module that you can
+install and configure to run Babel on each JavaScript module as it is bundled up.
+
+Even though there is less need to transform the core JavaScript language today, Babel
+is still commonly used to support nonstandard extensions to the language.
+
+17.7 JSX: Markup Expressions in JavaScript
+
+
+
+
