@@ -142,3 +142,17 @@ Postman REST Client: https://www.postman.com/downloads/
 Introduction to REST API: https://www.tutorialspoint.com/restful/restful_introduction.htm
 
 Azure Cosmos NPM Package: https://www.npmjs.com/package/@azure/cosmos
+
+
+
+This article contains link to source code and other useful resources for "Analyze Tweets with Azure Cognitive Text Analytics" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-twitter-review-sentiment
+
+Apply for Twitter Developer Account: https://developer.twitter.com/en/apply-for-access
+
+Twitter API Documentation: https://developer.twitter.com/en/docs
+
+Twitter API Authentication Documentation: https://developer.twitter.com/en/docs/basics/authentication/oauth-2-0/bearer-tokens
+
+Azure Cognitve Service Text Analytics: https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/overview
