@@ -173,7 +173,9 @@ search tweets:
 	https://developer.twitter.com/en/docs/twitter-api/tweets/search/introduction 
 	
 Text analytics:
-	
+
+https://learn.microsoft.com/en-us/rest/api/cognitiveservices-textanalytics/3.0/sentiment/sentiment?tabs=HTTP
+
 curl --location 'https://textanalyticsudemy.cognitiveservices.azure.com/text/analytics/v2.1/sentiment' \
 --header 'Content-Type: application/json' \
 --header 'Ocp-Apim-Subscription-Key: <key>' \
