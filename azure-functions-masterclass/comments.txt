@@ -156,3 +156,44 @@ Twitter API Documentation: https://developer.twitter.com/en/docs
 Twitter API Authentication Documentation: https://developer.twitter.com/en/docs/basics/authentication/oauth-2-0/bearer-tokens
 
 Azure Cognitve Service Text Analytics: https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/overview
+
+
+Get token from Twitter:
+
+Log at twitter developer portal. Look for an App & get keys.
+
+curl -u "$API_KEY:$API_SECRET_KEY" \
+  --data 'grant_type=client_credentials' \
+  'https://api.twitter.com/oauth2/token'
+
+token:
+  https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens
+
+search tweets:
+	https://developer.twitter.com/en/docs/twitter-api/tweets/search/introduction 
+	
+Text analytics:
+	
+curl --location 'https://textanalyticsudemy.cognitiveservices.azure.com/text/analytics/v2.1/sentiment' \
+--header 'Content-Type: application/json' \
+--header 'Ocp-Apim-Subscription-Key: <key>' \
+--data '{
+  "documents": [
+    {
+      "language": "en",
+      "id": "1",
+      "text": "Hello world. This is some input text that I love."
+    },
+    {
+      "language": "en",
+      "id": "2",
+      "text": "It'\''s incredibly sunny outside! I'\''m so happy."
+    },
+    {
+      "language": "en",
+      "id": "3",
+      "text": "Pike place market is my favorite Seattle attraction."
+    }
+  ]
+}
+'
