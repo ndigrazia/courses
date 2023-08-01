@@ -446,8 +446,229 @@ install and configure to run Babel on each JavaScript module as it is bundled up
 Even though there is less need to transform the core JavaScript language today, Babel
 is still commonly used to support nonstandard extensions to the language.
 
+
 17.7 JSX: Markup Expressions in JavaScript
 
+JSX is an extension to core JavaScript that uses HTML-style syntax to define a tree of
+elements. JSX is most closely associated with the React framework for user interfaces
+on the web. In React, the trees of elements defined with JSX are ultimately rendered
+into a web browser as HTML. Even if you have no plans to use React yourself, its
+popularity means that you are likely to see code that uses JSX. This section explains
+what you need to know to make sense of of it.
 
+You can think of a JSX element as a new type of JavaScript expression syntax. Java‐
+Script string literals are delimited with quotation marks, and regular expression literals
+are delimited with slashes.In the same way, JSX expression literals are delimited
+with angle brackets. Here is a very simple one:
+
+let line = <hr/>;
+
+If you use JSX, you will need to use Babel (or a similar tool) to compile JSX expressions
+into regular JavaScript. The transformation is simple enough that some developers
+choose to use React without using JSX. Babel transforms the JSX expression in
+this assignment statement into a simple function call:
+
+let line = React.createElement("hr", null);
+
+JSX syntax is HTML-like, and like HTML elements, React elements can have
+attributes like these:
+
+let image = <img src="logo.png" alt="The JSX logo" hidden/>;
+
+When an element has one or more attributes, they become properties of an object
+passed as the second argument to createElement():
+
+let image = React.createElement("img", {
+    src: "logo.png",
+    alt: "The JSX logo",
+    hidden: true
+});
+
+Like HTML elements, JSX elements can have strings and other elements as children.
+Just as JavaScript’s arithmetic operators can be used to write arithmetic expressions of
+arbitrary complexity, JSX elements can also be nested arbitrarily deeply to create trees
+of elements:
+
+let sidebar = (
+    <div className="sidebar">
+        <h1>Title</h1>
+        <hr/>
+        <p>This is the sidebar content</p>
+    </div>
+);
+
+Regular JavaScript function call expressions can also be nested arbitrarily deeply, and
+these nested JSX expressions translate into a set of nested createElement() calls.
+When an JSX element has children, those children (which are typically strings and
+other JSX elements) are passed as the third and subsequent arguments:
+
+let sidebar = React.createElement(
+    "div", { className: "sidebar"}, // This outer call creates a <div>
+    React.createElement("h1", null, // This is the first child of the <div/>
+         "Title"), // and its own first child.
+    React.createElement("hr", null), // The second child of the <div/>.
+    React.createElement("p", null, // And the third child.
+        "This is the sidebar content")
+);
+
+The value returned by React.createElement() is an ordinary JavaScript object that
+is used by React to render output in a browser window. 
+
+It is worth noting that you can configure Babel to compile JSX elements to invocations 
+of a different function, so if you think that JSX syntax would be a useful way to express 
+other kinds of nested data structures, you can adopt it for your own non-React uses.
+
+An important feature of JSX syntax is that you can embed regular JavaScript expressions
+within JSX expressions. Within a JSX expression, text within curly braces is
+interpreted as plain JavaScript. These nested expressions are allowed as attribute values
+and as child elements. For example:
+
+function sidebar(className, title, content, drawLine=true) {
+    return (
+            <div className={className}>
+                <h1>{title}</h1>
+                { drawLine && <hr/> }
+                <p>{content}</p>
+            </div>
+        );
+}
+
+The sidebar() function returns a JSX element. It takes four arguments that it uses
+within the JSX element. The curly brace syntax may remind you of template literals
+that use ${} to include JavaScript expressions within strings. Since we know that JSX
+expressions compile into function invocations, it should not be surprising that arbitrary
+JavaScript expressions can be included because function invocations can be
+written with arbitrary expressions as well.
+
+function sidebar(className, title, content, drawLine=true) {
+    return React.createElement("div", 
+        { className: className },
+        React.createElement("h1", null, title),
+        drawLine && React.createElement("hr", null),
+        React.createElement("p", null, content)
+    );
+}
+
+This code is easy to read and understand: the curly braces are gone and the resulting
+code passes the incoming function parameters to React.createElement() in a natural
+way. Note the neat trick that we’ve done here with the drawLine parameter and the
+short-circuiting && operator. If you call sidebar() with only three arguments, then
+drawLine defaults to true, and the fourth argument to the outer createElement()
+call is the <hr/> element. But if you pass false as the fourth argument to sidebar(),
+then the fourth argument to the outer createElement() call evaluates to false, and
+no <hr/> element is ever created. 
+
+IMPORTANT: This use of the && operator is a common idiom in JSX to conditionally include 
+or exclude a child element depending on the value of some other expression.(This idiom works 
+with React because React simply ignores children that are false or null and does not produce 
+any output for them.)
+
+When you use JavaScript expressions within JSX expressions, you are not limited to
+simple values like the string and boolean values in the preceding example. Any Java‐
+Script value is allowed. In fact, it is quite common in React programming to use
+objects, arrays, and functions. Consider the following function, for example:
+
+// Given an array of strings and a callback function return a JSX element
+// representing an HTML <ul> list with an array of <li> elements as its child.
+function list(items, callback) {
+    return (
+        <ul style={ {padding:10, border:"solid red 4px"} }>
+            {items.map((item,index) => 
+                {
+                    <li onClick={() => callback(index)} key={index}>{item}</li>
+                }
+            )}
+        </ul>
+    );
+}
+
+This function uses an object literal as the value of the style attribute on the <ul>
+element. (Note that double curly braces are required here.). The <ul> element has a
+single child, but the value of that child is an array. The <ul> element has a
+single child, but the value of that child is an array. The child array is the array
+created by using the map() function on the input array to create an array of <li> elements.
+
+Finally, note that each of the nested <li> elements has an onClick event handler attribute 
+whose value is an arrow function. The JSX code compiles to the following pure JavaScript 
+code (which I have formatted with Prettier):
+
+function list(items, callback) {
+    return React.createElement(
+        "ul",
+        { style: { padding: 10, border: "solid red 4px" } },
+        items.map((item, index) =>
+            React.createElement(
+                "li",
+                { onClick: () => callback(index), key: index },
+                item
+            )
+        )
+    );
+}
+
+One other use of object expressions in JSX is with the object spread operator (§6.10.4)
+to specify multiple attributes at once. Suppose that you find yourself writing a lot of
+JSX expressions that repeat a common set of attributes. You can simplify your expressions
+by defining the attributes as properties of an object and “spreading them into”
+your JSX elements:
+
+let hebrew = { lang: "he", dir: "rtl" }; // Specify language and direction
+let shalom = <span className="emphasis" {...hebrew}> שלום </span>;
+
+Babel compiles this to use an _extends() function (omitted here) that combines that
+className attribute with the attributes contained in the hebrew object:
+
+let shalom = React.createElement("span", _extends({className: "emphasis"}, hebrew),
+    "\u05E9\u05DC\u05D5\u05DD");
+
+Finally, there is one more important feature of JSX that we have not covered yet.
+As you’ve seen, all JSX elements begin with an identifier immediately after the opening
+angle bracket. If the first letter of this identifier is lowercase (as it has been in all of
+the examples here), then the identifier is passed to createElement() as a string. But if
+the first letter of the identifier is uppercase, then it is treated as an actual identifer,
+and it is the JavaScript value of that identifier that is passed as the first argument to
+createElement(). This means that the JSX expression <Math/> compiles to JavaScript
+code that passes the global Math object to React.createElement().
+
+For React, this ability to pass non-string values as the first argument to createElement() 
+enables the creation of components. A component is a way of writing a simple JSX expression 
+(with an uppercase component name) that represents a more complex
+expression (using lowercase HTML tag names).
+
+The simplest way to define a new component in React is to write a function that takes
+a “props object” as its argument and returns a JSX expression. A props object is simply
+a JavaScript object that represents attribute values, like the objects that are passed as
+the second argument to createElement(). Here, for example, is another take on our
+sidebar() function:
+
+function Sidebar(props) {
+    return (
+        <div>
+            <h1>{props.title}</h1>
+            { props.drawLine && <hr/> }
+            <p>{props.content}</p>
+        </div>
+    );
+}
+
+This new Sidebar() function is a lot like the earlier sidebar() function. But this one
+has a name that begins with a capital letter and takes a single object argument instead
+of separate arguments. This makes it a React component and means that it can be
+used in place of an HTML tag name in JSX expressions.
+
+let sidebar = <Sidebar title="Something snappy" content="Something wise"/>;
+
+This <Sidebar/> element compiles like this:
+
+let sidebar = React.createElement(Sidebar, {
+    title: "Something snappy",
+    content: "Something wise"
+});
+
+It is a simple JSX expression, but when React renders it, it will pass the second argument
+(the Props object) to the first argument (the Sidebar() function) and will use
+the JSX expression returned by that function in place of the <Sidebar> expression.
+
+17.8 Type Checking with Flow
 
 

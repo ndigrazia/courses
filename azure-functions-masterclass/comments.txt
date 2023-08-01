@@ -129,3 +129,16 @@ This article contains link to source code and other useful resources for "Notify
 Source code: https://github.com/Cloudshikshak/azure-functions-old-blob-delete
 
 Sendgrid Email API: https://sendgrid.com/
+
+
+
+Demo 6: Useful Resources
+This article contains link to source code and other useful resources for "Creating a REST api with HTTP triggers" demo described in next video.
+
+Source code: https://github.com/Cloudshikshak/azure-functions-rest-api
+
+Postman REST Client: https://www.postman.com/downloads/
+
+Introduction to REST API: https://www.tutorialspoint.com/restful/restful_introduction.htm
+
+Azure Cosmos NPM Package: https://www.npmjs.com/package/@azure/cosmos
