@@ -671,4 +671,240 @@ the JSX expression returned by that function in place of the <Sidebar> expressio
 
 17.8 Type Checking with Flow
 
+Flow is a language extension that allows you to annotate your JavaScript code with
+type information, and a tool for checking your JavaScript code (both annotated and
+unannotated) for type errors. To use Flow, you start writing code using the Flow language
+extension to add type annotations. Then you run the Flow tool to analyze your
+code and report type errors. Once you have fixed the errors and are ready to run the
+code, you use Babel (perhaps automatically as part of the code-bundling process) to
+strip the Flow type annotations out of your code. One of the nice things about the
+Flow language extension is that there isn’t any new syntax that Flow has to compile or
+transform. You use the Flow language extension to add annotations to the code and 
+all Babel has to do is to strip those annotations out to return your code to standard
+JavaScript.)
+
+    TypeScript Versus Flow
+
+    TypeScript is a very popular alternative to Flow. TypeScript is an extension of Java‐
+    Script that adds types as well as other language features. The TypeScript compiler
+    “tsc” compiles TypeScript programs into JavaScript programs and in the process analyzes
+    them and reports type errors in much the same the way that Flow does. tsc is not
+    a Babel plugin: it is its own standalone compiler.
+
+    Simple type annotations in TypeScript are usually written identically to the same
+    annotations in Flow. For more advanced typing, the syntax of the two extensions
+    diverges, but the intent and value of the two extensions is the same.
+
+    Flow is a narrow language extension that adds type annotations to JavaScript and 
+    nothing else. TypeScript, by contrast, was very much designed as a new language. As 
+    its name implies, adding types to JavaScript is the primary purpose of TypeScript, 
+    and it is the reason that people use it today. But types are not the only feature that 
+    TypeScript adds to JavaScript: the TypeScript language has enum and namespace keywords 
+    that simply do not exist in JavaScript. In 2020, TypeScript has better integration with 
+    IDEs and code editors (particularly VSCode, which, like TypeScript, is from Microsoft)
+    than Flow does.
+
+    But everything you learn here about adding types to JavaScript will be helpful to you 
+    if you decide to adopt TypeScript for your projects.
+
+Using Flow requires commitment, but I have found that for medium and large
+projects, the extra effort is worth it. It takes extra time to add type annotations to
+your code, to run Flow every time you edit the code, and to fix the type errors it
+reports. But in return Flow will enforce good coding discipline and will not allow you
+to cut corners that can lead to bugs. When I have worked on projects that use Flow, I
+have been impressed by the number of errors it found in my own code. Being able to
+fix those issues before they became bugs is a great feeling and gives me extra confidence
+that my code is correct.
+
+When I first started using Flow, I found that it was sometimes difficult to understand
+why it was complaining about my code. With some practice, though, I came to
+understand its error messages and found that it was usually easy to make minor changes 
+to my code to make it safer and to satisfy Flow. But once you are confident
+with the language, adding Flow to your JavaScript projects will push you to take your
+programming skills to the next level. And this, really, is why I’m dedicating the last
+section of this book to a Flow tutorial: because learning about JavaScript type systems
+offers a glimpse of another level, or another style, of programming.
+
+
+17.8.1 Installing and Running Flow
+
+You can install the Flow type-checking tool using a package manager, with a command like
+npm install -g flow-bin or npm install --save-dev flow-bin. If you install the tool globally 
+with -g, then you can run it with flow. And if you install it locally in your project with
+--save-dev, then you can run it with npx flow. Before using Flow to do type checking, the first
+time run it as flow --init in the root directory of your project to create a .flowconfig 
+configuration file. You may never need to add anything to this file, but Flow
+needs it to know where your project root is.
+
+When you run Flow, it will find all the JavaScript source code in your project, but it
+will only report type errors for the files that have “opted in” to type checking by
+adding a // @flow comment at the top of the file. This opt-in behavior is important
+because it means that you can adopt Flow for existing projects and then begin to convert
+your code one file at a time, without being bothered by errors and warnings on
+files that have not yet been converted.
+
+Flow may be able to find errors in your code even if all you do is opt in with a //
+@flow comment. Even if you do not use the Flow language extension and add no type
+annotations to your code, the Flow type checker tool can still make inferences about
+the values in your program and alert you when you use them inconsistently.
+
+17.8.2 Using Type Annotations
+
+When you declare a JavaScript variable, you can add a Flow type annotation to it by
+following the variable name with a colon and the type:
+
+let message: string = "Hello world";
+let flag: boolean = false;
+let n: number = 42;
+
+Flow would know the types of these variables even if you did not annotate them: it
+can see what values you assign to each variable, and it keeps track of that. If you add
+type annotations, however, Flow knows both the type of the variable and that you
+have expressed the intent that the variable should always be of that type. So if you use
+the type annotation, Flow will flag an error if you ever assign a value of a different
+type to that variable. Type annotations for variables are also particularly useful if you
+tend to declare all your variables up at the top of a function before they are used.
+
+Type annotations for function arguments are like annotations for variables: follow the
+name of the function argument with a colon and the type name. When annotating a
+function, you typically also add an annotation for the return type of the function
+
+This goes between the close parenthesis and the open curly brace of the function
+body. Functions that return nothing use the Flow type void.
+
+In the preceding example we defined a size() function that expected an argument
+with a length property. Here’s how we could change that function to explicitly specify
+that it expects a string argument and returns a number. Note, Flow now flags an error
+if we pass an array to the function, even though the function would work in that case:
+
+Error ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ size2.js:5:18
+Cannot call size with array literal bound to s because array literal [1]
+is incompatible with string [2].
+[2] 2│ function size(s: string): number {
+3│ return s.length;
+4│ }
+[1] 5│ console.log(size([1,2,3]));
+
+Using type annotations with arrow functions is also possible, though it can turn this
+normally succinct syntax into something more verbose:
+
+const size = (s: string): number => s.length;
+
+An important thing to understand about Flow is that the JavaScript value null has
+the Flow type null and the JavaScript value undefined has the Flow type void. But
+neither of these values is a member of any other type (unless you explicitly add it).
+If you declare a function parameter to be a string, then it must be a string, and it is an
+error to pass null or to pass undefined or to omit the argument (which is basically
+the same thing as passing undefined):
+
+Error ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ size3.js:3:18
+Cannot call size with null bound to s because null [1] is incompatible
+with string [2].
+    1│ // @flow
+    [2] 2│ const size = (s: string): number => s.length;
+    [1] 3│ console.log(size(null));
+
+If you want to allow null and undefined as legal values for a variable or function
+argument, simply prefix the type with a question mark. For example, use ?string
+or ?number instead of string or number. If we change our size() function to expect
+an argument of type ?string, then Flow doesn’t complain when we pass null to the
+function. But it now has something else to complain about:
+
+Error ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ size4.js:3:14
+Cannot get s.length because property length is missing in null or
+undefined [1].
+
+1│ // @flow
+
+[1] 2│ function size(s: ?string): number {
+3│  return s.length;
+4│ }
+5│ console.log(size(null));
+
+What Flow is telling us here is that it is not safe to write s.length because, at this
+place in our code, s might be null or undefined, and those values do not have
+length properties. This is where Flow makes sure we do not cut any corners. If a
+value might be null, Flow will insist that we check for that case before we do anything
+that depends on the value not being null.
+
+In this case, we can fix the issue by changing the body of the function as follows:
+
+function size(s: ?string): number {
+    // At this point in the code, s could be a string or null or undefined.
+    if (s === null || s === undefined) {
+        // In this block, Flow knows that s is null or undefined.
+        return -1;
+    } else {
+        // And in this block, Flow knows that s is a string.
+        return s.length;
+    }
+}
+
+Note that Flow does not require you to write verbose code like
+this. Flow would also be satisfied if we just replaced the body of the size() function
+with return s ? s.length : -1;.
+
+IMPORTANT: Flow syntax allows a question mark before any type specification to indicate that, in
+addition to the specified type, null and undefined are allowed as well
+
+Question marks can also appear after a parameter name to indicate that the parameter itself is
+optional. So if we changed the declaration of the parameter s from s: ?string to
+s? : string, that would mean it is OK to call size() with no arguments.  (or with the
+value undefined, which is the same as omitting it), but that if we do call it with a
+parameter other than undefined, then that parameter must be a string. In this case,
+null is not a legal value.
+
+So far, we’ve discussed primitive types string, number, boolean, null, and void and
+have demonstrated how you can use use them with variable declarations, function
+parameters, and function return values. The subsections that follow describe some
+more complex types supported by Flow.
+
+//17.8.3 Class Types
+
+In addition to the primitive types that Flow knows about, it also knows about all of
+JavaScript’s built-in classes and allows you to use class name as types.The following
+function, for example, uses type annotations to indicate that it should be invoked
+with one Date object and one RegExp object:
+
+// @flow
+// Return true if the ISO representation of the specified date
+// matches the specified pattern, or false otherwise.
+// E.g: const isTodayChristmas = dateMatches(new Date(), /^\d{4}-12-25T/);
+export function dateMatches(d: Date, p: RegExp): boolean {
+    return p.test(d.toISOString());
+}
+
+IMPORTANT: If you define your own classes with the class keyword, those classes automatically
+become valid Flow types. In order to make this work, however, Flow does require you
+to use type annotations in the class. In particular, each property of the class must have
+its type declared. Here is a simple complex number class that demonstrates this:
+
+// @flow
+export default class Complex {
+    // Flow requires an extended class syntax that includes type annotations
+    // for each of the properties used by the class.
+    i: number;
+    r: number;
+    
+    static i: Complex;
+
+    constructor(r: number, i:number) {
+        // Any properties initialized by the constructor must have Flow type
+        // annotations above.
+        this.r = r;
+        this.i = i;
+    }
+
+    add(that: Complex) {
+        return new Complex(this.r + that.r, this.i + that.i);
+    }
+}
+
+// This assignment would not be allowed by Flow if there was not a
+// type annotation for i inside the class.
+Complex.i = new Complex(0,1);
+
+
+17.8.4 Object Types
+
 
