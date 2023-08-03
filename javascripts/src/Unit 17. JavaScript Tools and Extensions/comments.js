@@ -907,4 +907,155 @@ Complex.i = new Complex(0,1);
 
 17.8.4 Object Types
 
+The Flow type to describe an object looks a lot like an object literal, except that property
+values are replaced by property types. Here, for example, is a function that
+expects an object with numeric x and y properties:
+
+// @flow
+// Given an object with numeric x and y properties, return the
+// distance from the origin to the point (x,y) as a number.
+export default function distance(point: {x:number, y:number}): number {
+    return Math.hypot(point.x, point.y);
+}
+
+In this code, the text {x:number, y:number} is a Flow type, just like string or Date
+is. As with any type, you can add a question mark at the front to indicate that null
+and undefined should also be allowed.
+
+Within an object type, you can follow any of the property names with a question
+mark to indicate that property is optional and may be omitted. For example, you
+might write the type for an object that represents a 2D or 3D point like this:
+
+{x: number, y: number, z?: number}
+
+If a property is not marked as optional in an object type, then it is required, and Flow
+will report an error if an appropriate property is not present in the actual value. Normally,
+however, Flow tolerates extra properties. If you were to pass an object that had
+a w property to the distance() function above, Flow would not complain
+
+If you want Flow to strictly enforce that an object does not have properties other than
+those explicitly declared in its type, you can declare an exact object type by adding
+vertical bars to the curly braces:
+
+{| x: number, y: number |}
+
+JavaScript’s objects are sometimes used as dictionaries or string-to-value maps. When
+used like this, the property names are not known in advance and cannot be declared
+in a Flow type.If you use objects this way, you can still use Flow to describe the data
+structure. Suppose that you have an object where the properties are the names of the
+world’s major cities and the values of those properties are objects that specify the geographical
+location of those cities.
+
+// @flow
+const cityLocations : {[string]: {longitude:number, latitude:number}} = {
+    "Seattle": { longitude: 47.6062, latitude: -122.3321 },
+    // TODO: if there are any other important cities, add them here.
+};
+export default cityLocations;
+
+
+17.8.5 Type Aliases
+
+Objects can have many properties, and the Flow type that describes such an object
+will be long and difficult to type. And even relatively short object types can be confusing
+because they look so much like object literals. Once we get beyond simple types
+like number and ?string, it is often useful to be able to define names for our Flow
+types. And in fact, Flow uses the type keyword to do exactly that. Follow the type keyword 
+with an identifier, an equals sign, and a Flow type. Once you’ve done that,
+the identifier will be an alias for the type. Here, for example, is how we could rewrite
+the distance() function from the previous section with an explicitly defined Point
+type:
+
+// @flow
+
+export type Point = {
+    x: number,
+    y: number
+};
+
+// Given a Point object return its distance from the origin
+export default function distance(point: Point): number {
+    return Math.hypot(point.x, point.y);
+}
+
+Note that this code exports the distance() function and also exports the Point type.
+Other modules can use import type Point from './distance.js' if they want to
+use that type definition. Keep in mind, though, that import type is a Flow language
+extension and not a real JavaScript import directive. Type imports and exports are
+used by the Flow type checker, but like all other Flow language extensions, they are
+stripped out of the code before it ever runs.
+
+IMPORTANT: Finally, it is worth noting that instead of defining a name for a Flow object type that
+represents a point, it would probably be simpler and cleaner to just define a Point
+class and use that class as the type.
+
+
+17.8.6 Array Types
+
+The Flow type to describe an array is a compound type that also includes the type of
+the array elements. The Flow type for an array is Array followed by the element type in angle brackets.
+You can also express an array type by following the element type with open and close square brackets.
+So in this example we could have written number[] instead of Array<number>.
+
+I prefer the angle bracket notation because, as we’ll see, there are
+other Flow types that use this angle-bracket syntax.
+
+The Array type syntax shown works for arrays with an arbitrary number of elements,
+all of which have the same type. Flow has a different syntax for describing the type of
+a tuple: an array with a fixed number of elements, each of which may have a different
+type. To express the type of a tuple, simply write the type of each of its elements, separate
+them with commas, and enclose them all in square brackets.
+
+A function that returns an HTTP status code and message might look like this, for
+example:
+
+function getStatus():[number, string] {
+    return [getStatusCode(), getStatusMessage()];
+}
+
+Functions that return tuples are awkward to work with unless you use destructuring
+assignment:
+
+let [code, message] = getStatus();
+
+IMPORTANT: Destructuring assignment, plus Flow’s type-aliasing capabilities, make tuples easy
+enough to work with that you might consider them as an alternative to classes for
+simple datatypes:
+
+// @flow
+export type Color = [number, number, number, number]; // [r, g, b, opacity]
+
+function gray(level: number): Color {
+    return [level, level, level, 1];
+}
+
+function fade([r,g,b,a]: Color, factor: number): Color {
+    return [r, g, b, a/factor];
+}
+
+let [r, g, b, a] = fade(gray(75), 3);
+
+Now that we have a way to express the type of an array, let’s return to the size()
+function from earlier and modify it to expect an array argument instead of a string
+argument.  We want the function to be able to accept an array of any length, so a tuple
+type is not appropriate. But we don’t want to restrict our function to working only for
+arrays where all the elements have the same type. The solution is the type
+Array<mixed>:
+
+// @flow
+function size(s: Array<mixed>): number {
+    return s.length;
+}
+
+console.log(size([1,true,"three"]));
+
+The element type mixed indicates that the elements of the array can be of any type. If
+our function actually indexed the array and attempted to use any of those elements,
+Flow would insist that we use typeof checks or other tests to determine the type of
+the element before performing any unsafe operation on it.
+
+
+17.8.7 Other Parameterized Types
+
+
 
