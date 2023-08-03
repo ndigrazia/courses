@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "inputDocument",
+      "databaseName": "BookDB",
+      "containerName": "BookContainer",
+      "connection": "cosmosdbaccountudemy_DOCUMENTDB",
+      "sqlQuery": "select * from c where c.id={id}"
+    }
+  ]
+}

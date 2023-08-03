@@ -1,0 +1,12 @@
+{
+  "name": "azure-functions-examples",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "zlib": "^1.0.5"
+  }
+}

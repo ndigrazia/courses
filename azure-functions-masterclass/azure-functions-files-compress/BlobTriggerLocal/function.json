@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "myInputBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "image-input/{name}.{extension}",
+      "connection": "mstorageaccountudemy_STORAGE"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "myOutputBlob",
+      "path": "image-output/{name}.gzip",
+      "connection": "mstorageaccountudemy_STORAGE"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "image-input/{name}",
+      "connection": "mstorageaccountudemy_STORAGE"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "outputDocument",
+      "databaseName": "test",
+      "collectionName": "test",
+      "createIfNotExists": true,
+      "connectionStringSetting": "cosmosdbaccountudemy_DOCUMENTDB"
+    }
+  ]
+}   
