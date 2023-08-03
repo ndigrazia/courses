@@ -199,3 +199,12 @@ curl --location 'https://textanalyticsudemy.cognitiveservices.azure.com/text/ana
   ]
 }
 '
+
+
+
+Delpoy local Git.
+
+git add .
+git commit -m "add comments"
+git remote add origin <url-azure-function-git>  git remote add origin https://azure-functions-app-deployment-git.scm.azurewebsites.net:443/azure-functions-app-deployment-git.git
+git push origin master
