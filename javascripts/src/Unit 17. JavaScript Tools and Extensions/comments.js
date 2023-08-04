@@ -1054,8 +1054,309 @@ our function actually indexed the array and attempted to use any of those elemen
 Flow would insist that we use typeof checks or other tests to determine the type of
 the element before performing any unsafe operation on it.
 
-
 17.8.7 Other Parameterized Types
 
+We’ve seen that when you annotate a value as an Array, Flow requires you to also
+specify the type of the array elements inside angle brackets. This additional type is
+known as a type parameter, and Array is not the only JavaScript class that is
+parameterized.
+
+JavaScript’s Set class is a collection of elements, like an array is, and you can’t use Set
+as a type by itself, but you have to include a type parameter within angle brackets to
+specify the type of the values contained in the set.
+
+// @flow
+// Return a set of numbers with members that are exactly twice those
+// of the input set of numbers.
+function double(s: Set<number>): Set<number> {
+    let doubled: Set<number> = new Set();
+    for(let n of s) doubled.add(n * 2);
+        return doubled;
+}
+
+console.log(double(new Set([1,2,3]))); // Prints "Set {2, 4, 6}"
+
+Map is another parameterized type. In this case, there are two type parameters that
+must be specified; the type of the keys and the types of the values:
+
+// @flow
+import type { Color } from "./Color.js";
+
+let colorNames: Map<string, Color> = new Map([
+    ["red", [1, 0, 0, 1]],
+    ["green", [0, 1, 0, 1]],
+    ["blue", [0, 0, 1, 1]]
+]);
+
+Flow lets you define type parameters for your own classes as well. The following code
+defines a Result class but parameterizes that class with an Error type and a Value type.
+
+We use placeholders E and V in the code to represent these type parameters. When
+the user of this class declares a variable of type Result, they will specify the actual
+types to substitute for E and V. The variable declaration might look like this:
+
+let result: Result<TypeError, Set<string>>;
+
+And here is how the parameterized class is defined:
+
+// @flow
+// This class represents the result of an operation that can either
+// throw an error of type E or a value of type V.
+export class Result<E, V> {
+    error: ?E;
+    value: ?V;
+    constructor(error: ?E, value: ?V) {
+        this.error = error;
+        this.value = value;
+    }
+    threw(): ?E { return this.error; }
+    returned(): ?V { return this.value; }
+    get():V {
+        if (this.error) {
+            throw this.error;
+        } else if (this.value === null || this.value === undefined) {
+            throw new TypeError("Error and value must not both be null");
+        } else {
+            return this.value;
+        }
+    }
+}
+
+And you can even define type parameters for functions:
+
+// @flow
+// Combine the elements of two arrays into an array of pairs
+function zip<A,B>(a:Array<A>, b:Array<B>): Array<[?A,?B]> {
+    let result:Array<[?A,?B]> = [];
+    let len = Math.max(a.length, b.length);
+    for(let i = 0; i < len; i++) {
+        result.push([a[i], b[i]]);
+    }
+    return result;
+}
+
+// Create the array [[1,'a'], [2,'b'], [3,'c'], [4,undefined]]
+let pairs: Array<[?number,?string]> = zip([1,2,3,4], ['a','b','c'])
 
 
+17.8.8 Read-Only Types
+
+Flow defines some special parameterized “utility types” that have names beginning
+with $. Most of these types have advanced use cases that we are not going to cover
+here. But two of them are quite useful in practice. If you have an object type T and
+want to make a read-only version of that type, just write $ReadOnly<T>. Similarly, you
+can write $ReadOnlyArray<T> to describe a read-only array with elements of type T.
+
+The reason to use these types is not because they can offer any guarantee that an
+object or array can’t be modified (see Object.freeze() in §14.2 if you want true
+read-only objects) but because it allows you to catch bugs caused by unintentional
+modifications. If you write a function that takes an object or array argument and does
+not change any of the object’s properties or the array’s elements, then you can annotate
+the function parameter with one of Flow’s read-only types. If you do this, then
+Flow will report an error if you forget and accidentally modify the input value.
+
+// @flow
+type Point = {x:number, y:number};
+
+// This function takes a Point object but promises not to modify it
+function distance(p: $ReadOnly<Point>): number {
+    return Math.hypot(p.x, p.y);
+}
+
+let p: Point = {x:3, y:4};
+
+distance(p) // => 5
+
+// This function takes an array of numbers that it will not modify
+function average(data: $ReadOnlyArray<number>): number {
+    let sum = 0;
+    for(let i = 0; i < data.length; i++) sum += data[i];
+    return sum/data.length;
+}
+
+let data: Array<number> = [1,2,3,4,5];
+average(data) // => 3
+
+
+17.8.9 Function Types
+
+We have seen how to add type annotations to specify the types of a function’s parameters
+and its return type. But when one of the parameters of a function is itself a function,
+we need to be able to specify the type of that function parameter.
+
+To express the type of a function with Flow, write the types of each parameter, separate
+them with commas, enclose them in parentheses, and then follow that with an
+arrow and type return type of the function.
+
+(n:number, s string) => number
+
+Here is an example function that expects to be passed a callback function. Notice how
+we defined a type alias for the type of the callback function:
+
+// @flow
+// The type of the callback function used in fetchText() below
+export type FetchTextCallback = (?Error, ?number, ?string) => void;
+
+export default function fetchText(url: string, callback: FetchTextCallback) {
+    let status = null;
+
+    fetch(url).then(response => {
+        status = response.status;
+        return response.text()
+    })
+    .then(body => {
+        callback(null, status, body);
+    })
+    .catch(error => {
+        callback(error, status, null);
+    });
+}
+
+17.8.10 Union Types
+
+Let’s return one more time to the size() function. It doesn’t really make sense to have
+a function that does nothing other than return the length of an array. Arrays have a
+perfectly good length property for that. But size() might be useful if it could take
+any kind of collection object (an array or a Set or a Map) and return the number of
+elements in the collection. In regular untyped JavaScript it would be easy to write a
+size() function like that. With Flow, we need a way to express a type that allows
+arrays, Sets, and Maps, but doesn’t allow values of any other type.
+
+Flow calls types like this Union types and allows you to express them by simply listing
+the desired types and separating them with vertical bar characters:
+
+
+// @flow
+function size(collection: Array<mixed>|Set<mixed>|Map<mixed,mixed>): number {
+    if (Array.isArray(collection)) {
+        return collection.length;
+    } else {
+        return collection.size;
+    }
+}
+
+size([1,true,"three"]) + size(new Set([true,false])) // => 5
+
+Union types can be read using the word “or”— “an array or a Set or a Map”— so the
+fact that this Flow syntax uses the same vertical bar character as JavaScript’s OR operators
+is intentional.
+
+We saw earlier that putting a question mark before a type allows null and undefined
+values. And now you can see that a ? prefix is simply a shortcut for adding a |null|
+void suffix to a type.
+
+IMPORTANT: In general, when you annotate a value with a Union type, Flow will not allow you to
+use that value until you’ve done enough tests to figure out what the type of the actual
+value is. In the size() example we just looked at, we need to explicitly check whether
+the argument is an array before we try to access the length property of the argument. 
+
+Note that we do not have to distinguish a Set argument from a Map argument, however: both of
+those classes define a size property, so the code in the else clause is
+safe as long as the argument is not an array.
+
+17.8.11 Enumerated Types and Discriminated Unions
+
+Flow allows you to use primitive literals as types that consist of that one single value.
+If you write let x:3;, then Flow will not allow you to assign any value to that variable
+other than 3. It is not often useful to define types that have only a single member,
+but a union of literal types can be useful.
+
+type Answer = "yes" | "no";
+type Digit = 0|1|2|3|4|5|6|7|8|9;
+
+If you use types made up of literals, you need to understand that only literal values
+are allowed:
+
+let a: Answer = "Yes".toLowerCase(); // Error: can't assign string to Answer
+let d: Digit = 3+4; // Error: can't assign number to Digit
+
+When Flow checks your types, it does not actually do the calculations: it just checks
+the types of the calculations. Flow knows that toLowerCase() returns a string and
+that the + operator on numbers returns a number. Even though we know that both of
+these calculations return values that are within the type, Flow cannot know that and
+flags errors on both of these lines.
+
+A union type of literal types like Answer and Digit is an example of an enumerated
+type, or enum. A canonical use case for enum types is to represent the suits of playing
+cards:
+
+type Suit = "Clubs" | "Diamonds" | "Hearts" | "Spades";
+
+A more relevant example might be HTTP status codes:
+
+type HTTPStatus =
+| 200 // OK
+| 304 // Not Modified
+| 403 // Forbidden
+| 404; // Not Found
+
+One of the pieces of advice that new programmers often hear is to avoid using literals
+in their code and to instead define symbolic constants to represent those values. One
+practical reason for this is to avoid the problem of typos: if you misspell a string literal
+like “Diamonds” JavaScript may never complain but your code may not work
+right. If you mistype an identifier, on the other hand, JavaScript is likely to throw an
+error that you’ll notice. With Flow, this advice does not always apply. If you annotate
+a variable with the type Suit, and then try to assign a misspelled suit to it, Flow will
+alert you to the error.
+
+Another important use for literal types is the creation of discriminated unions. When
+you work with union types (made up of actually different types, not of literals), you
+typically have to write code to discriminate among the possible types. In the previous
+section, we wrote a function that could take an array or a Set or a Map as its argument
+and had to write code to discriminate array input from Set or Map input. If you want
+to create a union of Object types, you can make these types easy to discriminate by
+using a literal type within each of the individual Object types.    
+
+
+Suppose you’re using a worker thread in Node
+(§16.11) and are using postMessage() and “message” events for sending object-based
+messages between the main thread and the worker thread. There are multiple types of
+messages that the worker might want to send to the main thread, but we’d like to
+write a Flow Union type that describes all possible messages. Consider this code:
+
+// @flow
+// The worker sends a message of this type when it is done
+// reticulating the splines we sent it.
+export type ResultMessage = {
+    messageType: "result",
+    result: Array<ReticulatedSpline>, // Assume this type is defined elsewhere.
+};
+
+// The worker sends a message of this type if its code failed with an exception.
+export type ErrorMessage = {
+    messageType: "error",
+    error: Error,
+};
+
+// The worker sends a message of this type to report usage statistics.
+export type StatisticsMessage = {
+    messageType: "stats",
+    splinesReticulated: number,
+    splinesPerSecond: number
+};
+
+// When we receive a message from the worker it will be a WorkerMessage.
+export type WorkerMessage = ResultMessage | ErrorMessage | StatisticsMessage;
+
+
+// The main thread will have an event handler function that is passed
+// a WorkerMessage. But because we've carefully defined each of the
+// message types to have a messageType property with a literal type,
+// the event handler can easily discriminate among the possible messages:
+function handleMessageFromReticulator(message: WorkerMessage) {
+        if (message.messageType === "result") {
+            // Only ResultMessage has a messageType property with this value
+            // so Flow knows that it is safe to use message.result here.
+            // And Flow will complain if you try to use any other property.
+            console.log(message.result);
+        } else if (message.messageType === "error") {
+            // Only ErrorMessage has a messageType property with value "error"
+            // so knows that it is safe to use message.error here.
+            throw message.error;
+        } else if (message.messageType === "stats") {
+            // Only StatisticsMessage has a messageType property with value "stats"
+            // so knows that it is safe to use message.splinesPerSecond here.
+            console.info(message.splinesPerSecond);
+        }
+}
+*/
