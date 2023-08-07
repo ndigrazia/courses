@@ -211,3 +211,28 @@ git push origin master
 
 Push Zip files to Azure Functions App
 https://learn.microsoft.com/en-us/azure/azure-functions/deployment-zip-push
+
+
+
+What's Next? (And a BONUS!!!)
+I hope this course has helped you to improve your knowledge in Azure Functions and serverless concepts in general. I'd really appreciate any feedback or comments about this course and any suggestions on how to improve it.
+
+My other related courses at discounted price:
+
+Azure Durable Functions: A Practical Guide
+https://www.udemy.com/course/durable-functions/?referralCode=388DBCB88B370FEF5001
+
+Learn about implementing stateful workflows in serverless environment with durable functions.
+
+
+
+Azure Serverless Hands On Learning
+https://www.udemy.com/course/azure-serverless-hands-on-learning/?referralCode=14CE305344A4AF608DE1
+
+This course introduces in detail core serverless services on Azure with a course project of hosting a single page application on Azure. You will create this serverless application from scratch while learning about API Management, Cosmos DB, Active Directory B2C, Blob Storage and Azure Functions.
+
+
+Azure Key Vault: The Complete Introduction
+https://www.udemy.com/course/azure-key-vault-the-complete-introduction/?referralCode=AB3EEFF83F4A9110710B
+
+Use Key Vault to securely store application secrets like database connection strings, API keys, cryptographic keys, digital certificates, etc. and access these secrets securely from your application.
