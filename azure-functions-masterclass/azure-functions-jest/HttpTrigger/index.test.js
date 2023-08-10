@@ -20,3 +20,13 @@ test('Return multiplication of numbers', async () => {
 
     expect(context.res.body).toEqual("Params passed must be number!.");
 } );
+
+test("other test", async () =>{   
+    const request = { 
+        query: { num1: 10, num2: "string" } 
+    };
+
+    await httpFunction(context, request);
+    
+    expect(context.res.body).toEqual("Params passed must be number!.");
+} )
