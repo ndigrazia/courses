@@ -1,0 +1,71 @@
+Useful Resources
+
+In this course, we will be going in depth on some of the core serverless services, but not all. Go through the documentation of the services that are not covered in this course to understand their purpose. You may not need to go through the entire documentation and API reference, but overview and concept sections of each documentation can help you understand if the service meets your need.
+
+
+Links to docs of serverless services:
+
+Azure Functions: https://docs.microsoft.com/en-us/azure/azure-functions/
+
+Azure App Service: https://docs.microsoft.com/en-us/azure/app-service/
+
+Azure Kubernetes Service: https://docs.microsoft.com/en-us/azure/aks/
+
+Azure Cosmos DB: https://docs.microsoft.com/en-us/azure/cosmos-db/
+
+Azure Blob Storage: https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction
+
+Azure Monitor: https://docs.microsoft.com/en-us/azure/azure-monitor/
+
+Azure Stream Analytics: https://docs.microsoft.com/en-us/azure/stream-analytics/
+
+Azure Logic Apps: https://docs.microsoft.com/en-us/azure/logic-apps/
+
+Azure Event Grid: https://docs.microsoft.com/en-us/azure/event-grid/
+
+Azure Service Bus: https://docs.microsoft.com/en-us/azure/service-bus/
+
+Azure API Management: https://docs.microsoft.com/en-us/azure/api-management/
+
+Azure DevOps: https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops
+
+Azure Machine Learning: https://docs.microsoft.com/en-us/azure/machine-learning/
+
+Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/welcome
+
+
+
+
+Cosmos DB Useful Resources
+Official documentation of Cosmos DB: https://docs.microsoft.com/en-us/azure/cosmos-db/
+
+Before trying out any cloud service, you should always check the pricing and make sure you are within budget. Also make sure you delete all the resources after learning the concepts.
+
+Cosmos DB pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/
+
+
+
+Documentation of APIs
+SQL API: https://docs.microsoft.com/en-us/azure/cosmos-db/sql-query-getting-started
+
+Cassandra API: https://docs.microsoft.com/en-us/azure/cosmos-db/cassandra-introduction
+
+Mongo DB API: https://docs.microsoft.com/en-us/azure/cosmos-db/mongodb-introduction
+
+Gremlin API: https://docs.microsoft.com/en-us/azure/cosmos-db/graph-introduction
+
+Table API: https://docs.microsoft.com/en-us/azure/cosmos-db/table-introduction
+
+
+
+
+Azure Functions Useful Resources
+Azure Functions Documentation: https://docs.microsoft.com/en-us/azure/azure-functions/
+
+Azure Functions Pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+
+List of triggers and bindings: https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings#supported-bindings
+
+Timer trigger cron format helper: https://crontab.guru/
+
+
