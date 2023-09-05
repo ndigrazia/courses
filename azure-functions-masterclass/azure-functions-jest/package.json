@@ -1,0 +1,12 @@
+{
+  "name": "azure-functions-jest",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "func start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "jest": "^29.6.2"
+  }
+}
