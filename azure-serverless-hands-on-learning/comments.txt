@@ -69,3 +69,12 @@ List of triggers and bindings: https://docs.microsoft.com/en-us/azure/azure-func
 Timer trigger cron format helper: https://crontab.guru/
 
 
+
+CORS Useful Resources
+If you want to know more about CORS, here are some articles that I found useful for basic understanding as well as implementation best practices:
+
+https://medium.com/@baphemot/understanding-cors-18ad6b478e2b
+
+https://www.codecademy.com/articles/what-is-cors
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
