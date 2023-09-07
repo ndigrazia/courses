@@ -78,3 +78,22 @@ https://medium.com/@baphemot/understanding-cors-18ad6b478e2b
 https://www.codecademy.com/articles/what-is-cors
 
 https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+
+
+
+Azure ADB2C Useful Resources
+There is a good article differentiating Azure AD and Azure ADB2C: https://predica.pl/blog/azure-ad-b2b-b2c-puzzled-out/
+
+Azure ADB2C documentation: https://docs.microsoft.com/en-us/azure/active-directory-b2c/
+
+Azure ADB2C pricing: https://azure.microsoft.com/en-us/pricing/details/active-directory-b2c/
+
+
+See a token that is passed from Azure AD B2C.
+
+Config the following link in The App registered. (Authentication->Add a platform)
+https://jwt.ms/
+Enable implicit grant marking access tokens.
+
+
+Page to generate temp email: https://temp-mail.org/es/
