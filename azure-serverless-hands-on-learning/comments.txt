@@ -97,3 +97,14 @@ Enable implicit grant marking access tokens.
 
 
 Page to generate temp email: https://temp-mail.org/es/
+
+
+Install libraries of node.js to Azure functions:
+In Our Azure fucntion App select Platform feature -> Advance tools (Kudu) -> Debug console -> CMD. Then,
+
+	- Go D:\home\site\wwwroot
+
+	- Go your functions folder.
+
+	- npm  install <library-name> (Make sure that you run npm init before installing the library)
+ 
