@@ -108,3 +108,9 @@ In Our Azure fucntion App select Platform feature -> Advance tools (Kudu) -> Deb
 
 	- npm  install <library-name> (Make sure that you run npm init before installing the library)
  
+
+Add library to connect Azure AD B2C
+
+npm install @kdpw/msal-b2c-react
+
+In your domain at Azure Azure AD B2C find Domain name to complete <TENANT NAME>
