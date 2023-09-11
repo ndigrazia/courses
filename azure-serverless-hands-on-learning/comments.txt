@@ -113,4 +113,19 @@ Add library to connect Azure AD B2C
 
 npm install @kdpw/msal-b2c-react
 
-In your domain at Azure Azure AD B2C find Domain name to complete <TENANT NAME>
+<TENANT NAME>
+In your domain at Azure AD B2C find Domain name to complete <TENANT NAME>
+
+<USER FLOW NAME>
+Find the name in "User flows" in your domain at Azure Azure AD B2C
+
+<REGISTERED APP ID>
+Go to "App REgistrations" in your domain at Azure Azure AD B2C, Then select te App and select "Application ID"
+
+
+<REDIRECT URI>
+Azure AD B2C will pass the token ateer successful authentication. Url of our React hosted in Azure blob Static Hosting.
+
+Decode JTW
+
+npm install jwt-decode
