@@ -128,4 +128,16 @@ Azure AD B2C will pass the token ateer successful authentication. Url of our Rea
 
 Decode JTW
 
+
 npm install jwt-decode
+
+
+Create a React Project
+npm run build
+
+
+IMPORTANT On App REGISTERED on  Azure AD B2C
+
+Change REDIRECT URI Azure AD B2C
+
+	Change to Url of our React hosted in Azure blob Static Hosting
