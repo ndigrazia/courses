@@ -1,0 +1,19 @@
+https://forms.office.com/pages/responsepage.aspx?id=RrVOrsPrfkmhXLWBTTzM4LjQRxiiyc1HpFyZdd0xw2dUQVVDREJXWkxLUkIxNElXWENKNjA1SktWRC4u
+
+liga 1 https://azure.microsoft.com/free
+liga 2 https://aka.ms/oaiapply (FORM OPENAI)
+
+https://learn.microsoft.com/es-es/training/modules/explore-azure-openai/
+
+https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+
+https://azurespeedtest.azurewebsites.net/
+
+https://github.com/MicrosoftLearning/mslearn-openai/tree/main/.github  //Codigos de ejemplo
+
+https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming
+
+https://learn.microsoft.com/es-es/training/courses/ai-050t00
+
+https://learn.microsoft.com/es-es/training/courses/az-900t00
+

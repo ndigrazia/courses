@@ -1,0 +1,143 @@
+Useful Resources
+
+In this course, we will be going in depth on some of the core serverless services, but not all. Go through the documentation of the services that are not covered in this course to understand their purpose. You may not need to go through the entire documentation and API reference, but overview and concept sections of each documentation can help you understand if the service meets your need.
+
+
+Links to docs of serverless services:
+
+Azure Functions: https://docs.microsoft.com/en-us/azure/azure-functions/
+
+Azure App Service: https://docs.microsoft.com/en-us/azure/app-service/
+
+Azure Kubernetes Service: https://docs.microsoft.com/en-us/azure/aks/
+
+Azure Cosmos DB: https://docs.microsoft.com/en-us/azure/cosmos-db/
+
+Azure Blob Storage: https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction
+
+Azure Monitor: https://docs.microsoft.com/en-us/azure/azure-monitor/
+
+Azure Stream Analytics: https://docs.microsoft.com/en-us/azure/stream-analytics/
+
+Azure Logic Apps: https://docs.microsoft.com/en-us/azure/logic-apps/
+
+Azure Event Grid: https://docs.microsoft.com/en-us/azure/event-grid/
+
+Azure Service Bus: https://docs.microsoft.com/en-us/azure/service-bus/
+
+Azure API Management: https://docs.microsoft.com/en-us/azure/api-management/
+
+Azure DevOps: https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops
+
+Azure Machine Learning: https://docs.microsoft.com/en-us/azure/machine-learning/
+
+Azure Cognitive Services: https://docs.microsoft.com/en-us/azure/cognitive-services/welcome
+
+
+
+
+Cosmos DB Useful Resources
+Official documentation of Cosmos DB: https://docs.microsoft.com/en-us/azure/cosmos-db/
+
+Before trying out any cloud service, you should always check the pricing and make sure you are within budget. Also make sure you delete all the resources after learning the concepts.
+
+Cosmos DB pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/
+
+
+
+Documentation of APIs
+SQL API: https://docs.microsoft.com/en-us/azure/cosmos-db/sql-query-getting-started
+
+Cassandra API: https://docs.microsoft.com/en-us/azure/cosmos-db/cassandra-introduction
+
+Mongo DB API: https://docs.microsoft.com/en-us/azure/cosmos-db/mongodb-introduction
+
+Gremlin API: https://docs.microsoft.com/en-us/azure/cosmos-db/graph-introduction
+
+Table API: https://docs.microsoft.com/en-us/azure/cosmos-db/table-introduction
+
+
+
+
+Azure Functions Useful Resources
+Azure Functions Documentation: https://docs.microsoft.com/en-us/azure/azure-functions/
+
+Azure Functions Pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+
+List of triggers and bindings: https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings#supported-bindings
+
+Timer trigger cron format helper: https://crontab.guru/
+
+
+
+CORS Useful Resources
+If you want to know more about CORS, here are some articles that I found useful for basic understanding as well as implementation best practices:
+
+https://medium.com/@baphemot/understanding-cors-18ad6b478e2b
+
+https://www.codecademy.com/articles/what-is-cors
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+
+
+
+Azure ADB2C Useful Resources
+There is a good article differentiating Azure AD and Azure ADB2C: https://predica.pl/blog/azure-ad-b2b-b2c-puzzled-out/
+
+Azure ADB2C documentation: https://docs.microsoft.com/en-us/azure/active-directory-b2c/
+
+Azure ADB2C pricing: https://azure.microsoft.com/en-us/pricing/details/active-directory-b2c/
+
+
+See a token that is passed from Azure AD B2C.
+
+Config the following link in The App registered. (Authentication->Add a platform)
+https://jwt.ms/
+Enable implicit grant marking access tokens.
+
+
+Page to generate temp email: https://temp-mail.org/es/
+
+
+Install libraries of node.js to Azure functions:
+In Our Azure fucntion App select Platform feature -> Advance tools (Kudu) -> Debug console -> CMD. Then,
+
+	- Go D:\home\site\wwwroot
+
+	- Go your functions folder.
+
+	- npm  install <library-name> (Make sure that you run npm init before installing the library)
+ 
+
+Add library to connect Azure AD B2C
+
+npm install @kdpw/msal-b2c-react
+
+<TENANT NAME>
+In your domain at Azure AD B2C find Domain name to complete <TENANT NAME>
+
+<USER FLOW NAME>
+Find the name in "User flows" in your domain at Azure Azure AD B2C
+
+<REGISTERED APP ID>
+Go to "App REgistrations" in your domain at Azure Azure AD B2C, Then select te App and select "Application ID"
+
+
+<REDIRECT URI>
+Azure AD B2C will pass the token ateer successful authentication. Url of our React hosted in Azure blob Static Hosting.
+
+Decode JTW
+
+
+npm install jwt-decode
+
+
+Create a React Project
+npm run build
+
+
+IMPORTANT On App REGISTERED on  Azure AD B2C
+
+Change REDIRECT URI Azure AD B2C
+
+	Change to Url of our React hosted in Azure blob Static Hosting
