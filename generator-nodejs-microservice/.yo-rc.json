@@ -1,0 +1,10 @@
+{
+  "generator-nodejs-microservice": {
+    "name": "myservice",
+    "description": "A nodejs microservices",
+    "srcDir": "src",
+    "apiRoot": "/api",
+    "apiDir": "api",
+    "author": "nobody"
+  }
+}

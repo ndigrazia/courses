@@ -1,0 +1,23 @@
+{
+  "name": "generator-nodejs-microservice",
+  "version": "0.1.0",
+  "description": "A Yeoman generator for generating nodejs microservices",
+  "type": "module",
+  "files": [
+    "generators"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "node",
+    "microservice"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "dependencies": {
+    "mkdirp": "^3.0.1",
+    "yeoman-generator": "^6.0.1",
+    "yosay": "^2.0.2"
+  }
+}
